@@ -30,9 +30,11 @@ import com.intellij.idea.plugin.hybris.business.process.common.BpGraphNode;
  */
 public class BpDiagramFileEdge extends DiagramEdgeBase<BpGraphNode> {
 
-    public BpDiagramFileEdge(final DiagramNode<BpGraphNode> source,
-                             final DiagramNode<BpGraphNode> target,
-                             final DiagramRelationshipInfo relationship) {
+    public BpDiagramFileEdge(
+        final DiagramNode<BpGraphNode> source,
+        final DiagramNode<BpGraphNode> target,
+        final DiagramRelationshipInfo relationship
+    ) {
         super(source, target, relationship);
     }
 }

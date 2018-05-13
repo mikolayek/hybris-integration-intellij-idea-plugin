@@ -125,7 +125,8 @@ public class SmartImpexFoldingPlaceholderBuilder implements ImpexFoldingPlacehol
     private String getClassNameFromValue(final @NotNull ImpexAttribute impexAttribute) {
         Validate.notNull(impexAttribute);
 
-        if (null == impexAttribute.getAnyAttributeValue() || (StringUtils.isBlank(impexAttribute.getAnyAttributeValue().getText()))) {
+        if (null == impexAttribute.getAnyAttributeValue() || (StringUtils.isBlank(impexAttribute.getAnyAttributeValue()
+                                                                                                .getText()))) {
             return impexAttribute.getText();
         }
 
@@ -143,7 +144,8 @@ public class SmartImpexFoldingPlaceholderBuilder implements ImpexFoldingPlacehol
     private String getValueText(final @NotNull ImpexAttribute impexAttribute) {
         Validate.notNull(impexAttribute);
 
-        if (null == impexAttribute.getAnyAttributeValue() || (StringUtils.isBlank(impexAttribute.getAnyAttributeValue().getText()))) {
+        if (null == impexAttribute.getAnyAttributeValue() || (StringUtils.isBlank(impexAttribute.getAnyAttributeValue()
+                                                                                                .getText()))) {
             return impexAttribute.getText();
         }
 

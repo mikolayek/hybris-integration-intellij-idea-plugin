@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ This file is part of "hybris integration" plugin for Intellij IDEA.
+  ~ Copyright (C) 2014-2016 Alexander Bartash <AlexanderBartash@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU Lesser General Public License as
+  ~ published by the Free Software Foundation, either version 3 of the
+  ~ License, or (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public License
+  ~ along with this program. If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <title>java</title>
+  <g>
+    <title>background</title>
+    <rect fill="none" id="canvas_background" height="34" width="34" y="-1" x="-1"/>
+  </g>
+  <g transform="matrix(2.012982, 0, 0, 1.998446, -0.348506, -0.091005)">
+    <title>Layer 1</title>
+    <g id="svg_1">
+      <g id="svg_2" opacity="0.8">
+        <polygon id="svg_3" opacity="0.7" points="6.0625 0.0624999 2.0625 4.0625 6.0625 4.0625 6.0625 0.0624999" fill="#9aa7b0"/>
+        <rect id="svg_4" opacity="0.4" height="7" width="15" y="9.0625" x="1.0625" style="fill: rgb(98, 0, 255);"/>
+        <polygon id="svg_5" opacity="0.7" points="7.0625 0.0624999 7.0625 4.0625 7.0625 5.0625 6.0625 5.0625 2.0625 5.0625 2.0625 8.0625 13.0625 8.0625 13.0625 0.0624999 7.0625 0.0624999" fill="#9aa7b0"/>
+      </g>
+      <text id="svg_8" y="13.031197" x="5.718775" style="white-space: pre;" text-anchor="start" stroke-width="0" stroke-opacity="null" stroke="null" font-size="24" font-family="Helvetica, Arial, sans-serif" fill-opacity="null" fill="#000000"/>
+      <path d="M 1.802 9.738" opacity="0.7" style="fill: none; stroke: black;"/>
+      <path d="M 2.234 10.131" opacity="0.7" style="fill: none; stroke: black;"/>
+      <g opacity="0.7" transform="matrix(0.995998, 0, 0, 0.999059, -8.970275, 0.274755)">
+        <path d="M11,10h3.30575v0.80028h-2.427v1.36385h2.10533v0.80028H11.87879V15H11V10Z" fill="#231f20"/>
+      </g>
+    </g>
+  </g>
+  <g opacity="0.7" transform="matrix(2.004925, 0, 0, 1.996563, -8.657244, 0.649061)">
+    <path d="M14.92972,10L13.2174,12.44271,15,15H13.98243l-1.2981-1.90706L11.39308,15H10.40351l1.77575-2.54275L10.47378,10h1.01757l1.221,1.81459L13.94015,10h0.98957Z" fill="#231f20"/>
+  </g>
+  <path d="M 26.249 26.349 C 28.158 26.762 28.569 27.139 28.569 27.831 L 28.569 27.86 C 28.423 28.711 27.594 29.267 26.747 29.077 C 26.717 29.077 26.692 29.072 26.663 29.07 L 26.663 29.084 L 23.723 29.084 L 23.723 30.589 L 26.664 30.588 L 26.691 30.589 C 28.541 30.91 30.259 29.558 30.375 27.694 L 30.375 27.664 C 30.375 26.056 29.259 25.321 27.087 24.823 C 25.105 24.38 24.636 24.046 24.636 23.296 L 24.636 23.268 C 24.758 22.48 25.523 21.956 26.308 22.12 L 26.345 22.108 L 26.345 22.113 L 29.157 22.113 L 29.157 20.608 L 26.52 20.608 L 26.518 20.622 C 26.455 20.62 26.399 20.608 26.336 20.608 C 24.571 20.363 22.962 21.653 22.827 23.421 L 22.827 23.451 C 22.827 25.239 24.06 25.851 26.249 26.349 Z" fill="#231f20" opacity="0.7"/>
+</svg>

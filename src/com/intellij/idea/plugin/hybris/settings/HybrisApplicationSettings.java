@@ -20,9 +20,12 @@ package com.intellij.idea.plugin.hybris.settings;
 
 import com.google.common.collect.Lists;
 import com.intellij.ide.util.PropertyName;
+import com.intellij.idea.plugin.hybris.statistics.StatsCollector;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import java.util.HashSet;
 import java.util.List;
 
 public class HybrisApplicationSettings {
@@ -47,20 +50,27 @@ public class HybrisApplicationSettings {
         "testclasses"
     );
 
+    public static final List<String> DEFAULT_TSD_STOP_TYPE_NAMES = Lists.newArrayList(
+        "GenericItem",
+        "Item",
+        "LocalizableItem",
+        "CronJob"
+    );
+
     @PropertyName("foldingEnabled")
     private boolean foldingEnabled = true;
 
     @PropertyName("useSmartFolding")
     private boolean useSmartFolding = true;
 
-    @PropertyName("limitedSpringConfig")
-    private boolean limitedSpringConfig = true;
-
     @PropertyName("groupModules")
     private boolean groupModules = true;
 
     @PropertyName("junkDirectoryList")
     private List<String> junkDirectoryList = DEFAULT_JUNK_FILE_NAMES;
+
+    @PropertyName("typeSystemDiagramStopTypes")
+    private List<String> tsdStopTypeList = DEFAULT_TSD_STOP_TYPE_NAMES;
 
     @PropertyName("groupHybris")
     private String groupHybris = "Hybris";
@@ -70,6 +80,9 @@ public class HybrisApplicationSettings {
 
     @PropertyName("groupCustom")
     private String groupCustom = "Custom";
+
+    @PropertyName("groupNonHybris")
+    private String groupNonHybris = "Others";
 
     @PropertyName("groupOtherCustom")
     private String groupOtherCustom = "Custom/Unused";
@@ -83,8 +96,32 @@ public class HybrisApplicationSettings {
     @PropertyName("defaultPlatformInReadOnly")
     private boolean defaultPlatformInReadOnly = true;
 
-    @PropertyName("createBackwardCyclicDependenciesForAddOns")
-    private boolean createBackwardCyclicDependenciesForAddOns = false;
+    @PropertyName("usedActions")
+    private HashSet<StatsCollector.ACTIONS> usedActions = new HashSet<>();
+
+    @PropertyName("followSymlink")
+    private boolean followSymlink = true;
+
+    @PropertyName("allowedSendingPlainStatistics")
+    private boolean allowedSendingPlainStatistics = false;
+
+    @PropertyName("disallowedSendingStatistics")
+    private boolean disallowedSendingStatistics = false;
+
+    @PropertyName("developmentMode")
+    private boolean developmentMode = false;
+
+    @PropertyName("externalDbDriversDirectory")
+    private String externalDbDriversDirectory = "";
+
+    @PropertyName("sourceCodeDirectory")
+    private String sourceCodeDirectory = "";
+
+    @PropertyName("sourceZipUsed")
+    private boolean sourceZipUsed = true;
+
+    @PropertyName("scanThroughExternalModule")
+    private boolean scanThroughExternalModule = false;
 
     @PropertyName("validateGeneratedItemsOnSave")
     private boolean validateGeneratedItemsOnSave = false;
@@ -109,14 +146,6 @@ public class HybrisApplicationSettings {
         this.useSmartFolding = foldingEnabled;
     }
 
-    public boolean isLimitedSpringConfig() {
-        return limitedSpringConfig;
-    }
-
-    public void setLimitedSpringConfig(final boolean limitedSpringConfig) {
-        this.limitedSpringConfig = limitedSpringConfig;
-    }
-
     public List<String> getJunkDirectoryList() {
         return junkDirectoryList;
     }
@@ -125,12 +154,12 @@ public class HybrisApplicationSettings {
         this.junkDirectoryList = junkDirectoryList;
     }
 
-    public void setGroupModules(final boolean groupModules) {
-        this.groupModules = groupModules;
-    }
-
     public boolean isGroupModules() {
         return groupModules;
+    }
+
+    public void setGroupModules(final boolean groupModules) {
+        this.groupModules = groupModules;
     }
 
     public String getGroupHybris() {
@@ -165,6 +194,14 @@ public class HybrisApplicationSettings {
         this.groupOtherCustom = groupOtherCustom;
     }
 
+    public String getGroupNonHybris() {
+        return groupNonHybris;
+    }
+
+    public void setGroupNonHybris(final String groupNonHybris) {
+        this.groupNonHybris = groupNonHybris;
+    }
+
     public boolean isHideEmptyMiddleFolders() {
         return hideEmptyMiddleFolders;
     }
@@ -181,12 +218,12 @@ public class HybrisApplicationSettings {
         this.defaultPlatformInReadOnly = defaultPlatformInReadOnly;
     }
 
-    public boolean isCreateBackwardCyclicDependenciesForAddOns() {
-        return createBackwardCyclicDependenciesForAddOns;
+    public String getGroupPlatform() {
+        return groupPlatform;
     }
 
-    public void setCreateBackwardCyclicDependenciesForAddOns(final boolean createBackwardCyclicDependenciesForAddOns) {
-        this.createBackwardCyclicDependenciesForAddOns = createBackwardCyclicDependenciesForAddOns;
+    public void setGroupPlatform(final String groupPlatform) {
+        this.groupPlatform = groupPlatform;
     }
 
     public boolean isValidateGeneratedItemsOnSave() {
@@ -197,12 +234,113 @@ public class HybrisApplicationSettings {
         this.validateGeneratedItemsOnSave = validateGeneratedItemsOnSave;
     }
 
-    public String getGroupPlatform() {
-        return groupPlatform;
+    public HashSet<StatsCollector.ACTIONS> getUsedActions() {
+        return usedActions;
     }
 
-    public void setGroupPlatform(final String groupPlatform) {
-        this.groupPlatform = groupPlatform;
+    public void setUsedActions(final HashSet<StatsCollector.ACTIONS> usedActions) {
+        this.usedActions = usedActions;
+    }
+
+    public boolean isFollowSymlink() {
+        return followSymlink;
+    }
+
+    public void setFollowSymlink(final boolean followSymlink) {
+        this.followSymlink = followSymlink;
+    }
+
+    public boolean isAllowedSendingPlainStatistics() {
+        return allowedSendingPlainStatistics;
+    }
+
+    public void setAllowedSendingPlainStatistics(final boolean allowedSendingPlainStatistics) {
+        this.allowedSendingPlainStatistics = allowedSendingPlainStatistics;
+    }
+
+    public boolean isDisallowedSendingStatistics() {
+        return disallowedSendingStatistics;
+    }
+
+    public void setDisallowedSendingStatistics(final boolean disallowedSendingStatistics) {
+        this.disallowedSendingStatistics = disallowedSendingStatistics;
+    }
+
+    public String getExternalDbDriversDirectory() {
+        return externalDbDriversDirectory;
+    }
+
+    public void setExternalDbDriversDirectory(final String externalDbDriversDirectory) {
+        this.externalDbDriversDirectory = externalDbDriversDirectory;
+    }
+
+    public String getSourceCodeDirectory() {
+        return sourceCodeDirectory;
+    }
+
+    public void setSourceCodeDirectory(final String sourceCodeDirectory) {
+        this.sourceCodeDirectory = sourceCodeDirectory;
+    }
+
+    public boolean isSourceZipUsed() {
+        return sourceZipUsed;
+    }
+
+    public void setSourceZipUsed(final boolean sourceZipUsed) {
+        this.sourceZipUsed = sourceZipUsed;
+    }
+
+    public boolean isDevelopmentMode() {
+        return developmentMode;
+    }
+
+    public void setDevelopmentMode(final boolean developmentMode) {
+        this.developmentMode = developmentMode;
+    }
+
+    public List<String> getTsdStopTypeList() {
+        return tsdStopTypeList;
+    }
+
+    public void setTsdStopTypeList(final List<String> tsdStopTypeList) {
+        this.tsdStopTypeList = tsdStopTypeList;
+    }
+
+    public boolean isScanThroughExternalModule() {
+        return scanThroughExternalModule;
+    }
+
+    public void setScanThroughExternalModule(final boolean scanThroughExternalModule) {
+        this.scanThroughExternalModule = scanThroughExternalModule;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+            .append(foldingEnabled)
+            .append(useSmartFolding)
+            .append(groupModules)
+            .append(junkDirectoryList)
+            .append(tsdStopTypeList)
+            .append(groupHybris)
+            .append(groupOtherHybris)
+            .append(groupCustom)
+            .append(groupOtherCustom)
+            .append(groupNonHybris)
+            .append(groupPlatform)
+            .append(hideEmptyMiddleFolders)
+            .append(defaultPlatformInReadOnly)
+            .append(usedActions)
+            .append(followSymlink)
+            .append(scanThroughExternalModule)
+            .append(allowedSendingPlainStatistics)
+            .append(disallowedSendingStatistics)
+            .append(externalDbDriversDirectory)
+            .append(sourceCodeDirectory)
+            .append(sourceZipUsed)
+            .append(developmentMode)
+            .append(validateGeneratedItemsOnSave)
+            .toHashCode();
     }
 
     @Override
@@ -220,39 +358,28 @@ public class HybrisApplicationSettings {
         return new EqualsBuilder()
             .append(foldingEnabled, other.foldingEnabled)
             .append(useSmartFolding, other.useSmartFolding)
-            .append(limitedSpringConfig, other.limitedSpringConfig)
             .append(groupModules, other.groupModules)
             .append(junkDirectoryList, other.junkDirectoryList)
+            .append(tsdStopTypeList, other.tsdStopTypeList)
             .append(groupHybris, other.groupHybris)
             .append(groupOtherHybris, other.groupOtherHybris)
             .append(groupCustom, other.groupCustom)
             .append(groupOtherCustom, other.groupOtherCustom)
+            .append(groupNonHybris, other.groupNonHybris)
             .append(groupPlatform, other.groupPlatform)
             .append(hideEmptyMiddleFolders, other.hideEmptyMiddleFolders)
             .append(defaultPlatformInReadOnly, other.defaultPlatformInReadOnly)
-            .append(createBackwardCyclicDependenciesForAddOns, other.createBackwardCyclicDependenciesForAddOns)
+            .append(usedActions, other.usedActions)
+            .append(followSymlink, other.followSymlink)
+            .append(scanThroughExternalModule, other.scanThroughExternalModule)
+            .append(allowedSendingPlainStatistics, other.allowedSendingPlainStatistics)
+            .append(disallowedSendingStatistics, other.disallowedSendingStatistics)
+            .append(externalDbDriversDirectory, other.externalDbDriversDirectory)
+            .append(sourceCodeDirectory, other.sourceCodeDirectory)
+            .append(sourceZipUsed, other.sourceZipUsed)
+            .append(developmentMode, other.developmentMode)
             .append(validateGeneratedItemsOnSave, other.validateGeneratedItemsOnSave)
             .isEquals();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-            .append(foldingEnabled)
-            .append(useSmartFolding)
-            .append(limitedSpringConfig)
-            .append(groupModules)
-            .append(junkDirectoryList)
-            .append(groupHybris)
-            .append(groupOtherHybris)
-            .append(groupCustom)
-            .append(groupOtherCustom)
-            .append(groupPlatform)
-            .append(hideEmptyMiddleFolders)
-            .append(defaultPlatformInReadOnly)
-            .append(createBackwardCyclicDependenciesForAddOns)
-            .append(validateGeneratedItemsOnSave)
-            .toHashCode();
     }
 
     @Override
@@ -260,19 +387,35 @@ public class HybrisApplicationSettings {
         final StringBuilder sb = new StringBuilder("HybrisApplicationSettings{");
         sb.append("foldingEnabled=").append(foldingEnabled);
         sb.append(", useSmartFolding=").append(useSmartFolding);
-        sb.append(", limitedSpringConfig=").append(limitedSpringConfig);
         sb.append(", groupModules=").append(groupModules);
         sb.append(", junkDirectoryList=").append(junkDirectoryList);
+        sb.append(", tsdStopTypeList=").append(tsdStopTypeList);
         sb.append(", groupHybris='").append(groupHybris).append('\'');
         sb.append(", groupOtherHybris='").append(groupOtherHybris).append('\'');
         sb.append(", groupCustom='").append(groupCustom).append('\'');
         sb.append(", groupOtherCustom='").append(groupOtherCustom).append('\'');
+        sb.append(", groupNonHybris='").append(groupNonHybris).append('\'');
         sb.append(", groupPlatform='").append(groupPlatform).append('\'');
         sb.append(", hideEmptyMiddleFolders='").append(hideEmptyMiddleFolders).append('\'');
         sb.append(", defaultPlatformInReadOnly='").append(defaultPlatformInReadOnly).append('\'');
-        sb.append(", createBackwardCyclicDependenciesForAddOns='").append(createBackwardCyclicDependenciesForAddOns).append('\'');
+        sb.append(", usedActions='").append(usedActions).append('\'');
+        sb.append(", followSymlink='").append(followSymlink).append('\'');
+        sb.append(", scanThroughExternalModule='").append(scanThroughExternalModule).append('\'');
+        sb.append(", allowedSendingPlainStatistics='").append(allowedSendingPlainStatistics).append('\'');
+        sb.append(", disallowedSendingStatistics='").append(disallowedSendingStatistics).append('\'');
+        sb.append(", externalDbDriversDirectory='").append(externalDbDriversDirectory).append('\'');
+        sb.append(", sourceCodeDirectory='").append(sourceCodeDirectory).append('\'');
+        sb.append(", sourceZipUsed='").append(sourceZipUsed).append('\'');
+        sb.append(", developmentMode='").append(developmentMode).append('\'');
         sb.append(", validateGeneratedItemsOnSave='").append(validateGeneratedItemsOnSave).append('\'');
         sb.append('}');
         return sb.toString();
+    }
+
+    public static String[] toIdeaGroup(final String group) {
+        if (group == null || group.trim().isEmpty()) {
+            return null;
+        }
+        return StringUtils.split(group, " ,.;>/\\");
     }
 }

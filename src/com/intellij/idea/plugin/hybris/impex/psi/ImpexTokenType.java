@@ -40,7 +40,9 @@ public class ImpexTokenType extends IElementType {
     public String toString() {
         final String name = super.toString();
 
-        if (isBlank(name)) return name;
+        if (isBlank(name)) {
+            return name;
+        }
 
         final String fixedName = PATTERN.matcher(lowerCase(name)).replaceAll(" ");
 

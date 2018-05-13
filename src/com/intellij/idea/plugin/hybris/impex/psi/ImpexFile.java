@@ -21,11 +21,17 @@ package com.intellij.idea.plugin.hybris.impex.psi;
 import com.intellij.extapi.psi.PsiFileBase;
 import com.intellij.idea.plugin.hybris.impex.ImpexLanguage;
 import com.intellij.idea.plugin.hybris.impex.file.ImpexFileType;
+import com.intellij.idea.plugin.hybris.impex.psi.references.ImpexMacrosReferenceBase;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.psi.FileViewProvider;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiReference;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+
+import static com.intellij.idea.plugin.hybris.impex.utils.ImpexPsiUtils.isMacroNameDeclaration;
+import static com.intellij.idea.plugin.hybris.impex.utils.ImpexPsiUtils.isMacroUsage;
 
 public class ImpexFile extends PsiFileBase {
 
@@ -48,5 +54,15 @@ public class ImpexFile extends PsiFileBase {
     @Override
     public Icon getIcon(final int flags) {
         return super.getIcon(flags);
+    }
+
+    @Override
+    public PsiReference findReferenceAt(final int offset) {
+        final PsiElement psiElement = findElementAt(offset);
+        if (isMacroNameDeclaration(psiElement) || isMacroUsage(psiElement)) {
+            return new ImpexMacrosReferenceBase(psiElement);
+        } else {
+            return super.findReferenceAt(offset);
+        }
     }
 }

@@ -19,6 +19,9 @@
 package com.intellij.idea.plugin.hybris.common.services;
 
 
+import com.intellij.idea.plugin.hybris.project.descriptors.HybrisProjectDescriptor;
+import com.intellij.idea.plugin.hybris.project.descriptors.PlatformHybrisModuleDescriptor;
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
@@ -44,4 +47,21 @@ public interface CommonIdeaService {
     boolean isOutDatedHybrisProject(@NotNull Project project);
 
     boolean isPotentiallyHybrisProject(@NotNull Project project);
+
+    PlatformHybrisModuleDescriptor getPlatformDescriptor(HybrisProjectDescriptor hybrisProjectDescriptor);
+
+    @NotNull
+    static CommonIdeaService getInstance() {
+        return ServiceManager.getService(CommonIdeaService.class);
+    }
+
+    boolean shouldShowPermissionToSendStatisticsDialog();
+
+    String getHostHacUrl(final Project project);
+
+    String getHostUrl(final Project project);
+
+    boolean isDiscountTargetGroup();
+
+    boolean isFansTargetGroup();
 }

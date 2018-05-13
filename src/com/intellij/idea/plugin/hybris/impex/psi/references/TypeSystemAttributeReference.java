@@ -22,6 +22,7 @@ import com.intellij.idea.plugin.hybris.impex.psi.ImpexAnyHeaderParameterName;
 import com.intellij.idea.plugin.hybris.impex.psi.ImpexFullHeaderType;
 import com.intellij.idea.plugin.hybris.impex.psi.ImpexHeaderLine;
 import com.intellij.idea.plugin.hybris.impex.psi.ImpexHeaderTypeName;
+import com.intellij.idea.plugin.hybris.psi.references.TypeSystemReferenceBase;
 import com.intellij.idea.plugin.hybris.type.system.meta.TSMetaClass;
 import com.intellij.idea.plugin.hybris.type.system.meta.TSMetaModel;
 import com.intellij.idea.plugin.hybris.type.system.meta.TSMetaProperty;
@@ -31,11 +32,13 @@ import com.intellij.idea.plugin.hybris.type.system.model.RelationElement;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.ResolveResult;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.util.xml.DomElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -64,13 +67,15 @@ class TypeSystemAttributeReference extends TypeSystemReferenceBase<ImpexAnyHeade
         final List<ResolveResult> result = metaClass.get()
                                                     .findPropertiesByName(featureName, true)
                                                     .stream()
-                                                    .map(TSMetaProperty::getDom)
+                                                    .map(TSMetaProperty::retrieveDom)
+                                                    .filter(Objects::nonNull)
                                                     .map(AttributeResolveResult::new)
                                                     .collect(Collectors.toCollection(LinkedList::new));
 
         metaClass.get().findReferenceEndsByRole(featureName, true)
                  .stream()
-                 .map(TSMetaReference.ReferenceEnd::getDom)
+                 .map(TSMetaReference.ReferenceEnd::retrieveDom)
+                 .filter(Objects::nonNull)
                  .map(RelationElementResolveResult::new)
                  .collect(Collectors.toCollection(() -> result));
 
@@ -83,7 +88,7 @@ class TypeSystemAttributeReference extends TypeSystemReferenceBase<ImpexAnyHeade
                        .map(ImpexFullHeaderType::getHeaderTypeName);
     }
 
-    private static class AttributeResolveResult implements ResolveResult {
+    private static class AttributeResolveResult implements TypeSystemResolveResult {
 
         private final Attribute myDomAttribute;
 
@@ -101,9 +106,15 @@ class TypeSystemAttributeReference extends TypeSystemReferenceBase<ImpexAnyHeade
         public boolean isValidResult() {
             return getElement() != null;
         }
+
+        @NotNull
+        @Override
+        public DomElement getSemanticDomElement() {
+            return myDomAttribute;
+        }
     }
 
-    private static class RelationElementResolveResult implements ResolveResult {
+    private static class RelationElementResolveResult implements TypeSystemResolveResult {
 
         @NotNull
         private final RelationElement myDomRelationEnd;
@@ -123,7 +134,11 @@ class TypeSystemAttributeReference extends TypeSystemReferenceBase<ImpexAnyHeade
             return getElement() != null;
         }
 
+        @NotNull
+        @Override
+        public DomElement getSemanticDomElement() {
+            return myDomRelationEnd;
+        }
     }
-
 
 }

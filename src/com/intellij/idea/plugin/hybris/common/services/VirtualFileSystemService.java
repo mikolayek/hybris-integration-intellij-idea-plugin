@@ -40,9 +40,10 @@ public interface VirtualFileSystemService {
     VirtualFile getByUrl(@NotNull String url);
 
     @Nullable
-    File findFileByNameInDirectory(@NotNull File directory,
-                                   @NotNull String fileName,
-                                   @Nullable TaskProgressProcessor<File> progressListenerProcessor
+    File findFileByNameInDirectory(
+        @NotNull File directory,
+        @NotNull String fileName,
+        @Nullable TaskProgressProcessor<File> progressListenerProcessor
     ) throws InterruptedException;
 
     boolean fileContainsAnother(@NotNull File parent, @NotNull File child);

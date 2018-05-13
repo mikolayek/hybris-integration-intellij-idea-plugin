@@ -18,9 +18,8 @@
 
 package com.intellij.idea.plugin.hybris.type.system.meta.impl;
 
-import com.intellij.idea.plugin.hybris.type.system.model.Attribute;
 import com.intellij.idea.plugin.hybris.type.system.meta.TSMetaProperty;
-import com.intellij.util.xml.GenericAttributeValue;
+import com.intellij.idea.plugin.hybris.type.system.model.Attribute;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,10 +29,25 @@ import org.jetbrains.annotations.Nullable;
 class TSMetaPropertyImpl extends TSMetaEntityImpl<Attribute> implements TSMetaProperty {
 
     private final TSMetaClassImpl myMetaClass;
+    private final boolean myDeprecated;
+    @Nullable private final String myType;
 
     public TSMetaPropertyImpl(final @NotNull TSMetaClassImpl owner, final @NotNull Attribute dom) {
         super(extractPropertyName(dom), dom);
         myMetaClass = owner;
+        myDeprecated = extractDeprecated(dom);
+        myType = dom.getType().getStringValue();
+    }
+
+    @Override
+    @Nullable
+    public String getType() {
+        return myType;
+    }
+
+    @Override
+    public boolean isDeprecated() {
+        return myDeprecated;
     }
 
     @Nullable
@@ -43,14 +57,21 @@ class TSMetaPropertyImpl extends TSMetaEntityImpl<Attribute> implements TSMetaPr
     }
 
     @NotNull
+    @Override
     public TSMetaClassImpl getMetaClass() {
         return myMetaClass;
     }
 
-    private static String extractPropertyName(Attribute dom) {
-        final GenericAttributeValue<String> qualifier = dom.getQualifier();
-        return qualifier == null ? null : qualifier.getValue();
+    @Nullable
+    private static String extractPropertyName(final Attribute dom) {
+        return dom.getQualifier().getValue();
     }
 
+    private boolean extractDeprecated(@NotNull final Attribute dom) {
+        final String name = getName();
+        return name != null && dom.getModel().getSetters().stream().anyMatch(
+            setter -> name.equals(setter.getName().getValue()) &&
+                      Boolean.TRUE.equals(setter.getDeprecated().getValue()));
+    }
 
 }

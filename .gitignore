@@ -1,6 +1,20 @@
 .idea/workspace.xml
 .idea/shelf
-out
+.idea/libraries
+.idea/.name
+.idea/uiDesigner.xml
+.idea/scopes
+.idea/sonarlint
+.idea/checkstyle-idea.xml
+.idea/modules
+.idea/modules.xml
+
+/out/
+/build/
+/common/build/
+/rt-ant/build/
+/.gradle/
+
 Hybris-Integration.zip
 
 **/.directory

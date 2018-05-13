@@ -24,6 +24,7 @@ package com.intellij.idea.plugin.hybris.type.system.model;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.GenericAttributeValue;
 import com.intellij.util.xml.GenericDomValue;
+import com.intellij.util.xml.NameValue;
 import com.intellij.util.xml.Required;
 import com.intellij.util.xml.SubTag;
 import com.intellij.util.xml.SubTagList;
@@ -50,6 +51,7 @@ public interface EnumType extends DomElement {
     @NotNull
     @com.intellij.util.xml.Attribute("code")
     @Required
+    @NameValue
     GenericAttributeValue<String> getCode();
 
 

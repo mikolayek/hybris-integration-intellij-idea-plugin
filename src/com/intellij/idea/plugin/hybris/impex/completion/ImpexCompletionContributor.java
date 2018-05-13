@@ -20,19 +20,28 @@ package com.intellij.idea.plugin.hybris.impex.completion;
 
 import com.intellij.codeInsight.completion.CompletionContributor;
 import com.intellij.codeInsight.completion.CompletionType;
+import com.intellij.codeInsight.lookup.LookupElementBuilder;
+import com.intellij.icons.AllIcons;
+import com.intellij.idea.plugin.hybris.common.utils.HybrisIcons;
+import com.intellij.idea.plugin.hybris.completion.provider.ItemTypeCodeCompletionProvider;
 import com.intellij.idea.plugin.hybris.impex.ImpexLanguage;
 import com.intellij.idea.plugin.hybris.impex.completion.provider.ImpexHeaderAttributeModifierNameCompletionProvider;
 import com.intellij.idea.plugin.hybris.impex.completion.provider.ImpexHeaderAttributeModifierValueCompletionProvider;
 import com.intellij.idea.plugin.hybris.impex.completion.provider.ImpexHeaderItemTypeAttributeNameCompletionProvider;
-import com.intellij.idea.plugin.hybris.impex.completion.provider.ImpexHeaderItemTypeCodeCompletionProvider;
 import com.intellij.idea.plugin.hybris.impex.completion.provider.ImpexHeaderTypeModifierNameCompletionProvider;
 import com.intellij.idea.plugin.hybris.impex.completion.provider.ImpexHeaderTypeModifierValueCompletionProvider;
+import com.intellij.idea.plugin.hybris.impex.completion.provider.ImpexKeywordCompletionProvider;
+import com.intellij.idea.plugin.hybris.impex.completion.provider.ImpexMacrosCompletionProvider;
+import com.intellij.idea.plugin.hybris.impex.constants.ImpexKeywords;
 import com.intellij.idea.plugin.hybris.impex.psi.ImpexFullHeaderParameter;
 import com.intellij.idea.plugin.hybris.impex.psi.ImpexFullHeaderType;
 import com.intellij.idea.plugin.hybris.impex.psi.ImpexModifiers;
 import com.intellij.idea.plugin.hybris.impex.psi.ImpexTypes;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.patterns.PlatformPatterns;
+import com.intellij.patterns.PsiElementPattern;
+import com.intellij.psi.PsiElement;
+
+import static com.intellij.patterns.PlatformPatterns.psiElement;
 
 public class ImpexCompletionContributor extends CompletionContributor {
 
@@ -42,63 +51,112 @@ public class ImpexCompletionContributor extends CompletionContributor {
         // case: header type modifier -> attribute_name
         extend(
             CompletionType.BASIC,
-            PlatformPatterns.psiElement()
-                            .withLanguage(ImpexLanguage.getInstance())
-                            .withElementType(ImpexTypes.ATTRIBUTE_NAME)
-                            .inside(ImpexFullHeaderType.class)
-                            .inside(ImpexModifiers.class),
+            psiElement()
+                .withLanguage(ImpexLanguage.getInstance())
+                .withElementType(ImpexTypes.ATTRIBUTE_NAME)
+                .inside(ImpexFullHeaderType.class)
+                .inside(ImpexModifiers.class),
             ImpexHeaderTypeModifierNameCompletionProvider.getInstance()
         );
 
         // case: header attribute's modifier name -> attribute_name
         extend(
             CompletionType.BASIC,
-            PlatformPatterns.psiElement()
-                            .withLanguage(ImpexLanguage.getInstance())
-                            .withElementType(ImpexTypes.ATTRIBUTE_NAME)
-                            .inside(ImpexFullHeaderParameter.class)
-                            .inside(ImpexModifiers.class),
+            psiElement()
+                .withLanguage(ImpexLanguage.getInstance())
+                .withElementType(ImpexTypes.ATTRIBUTE_NAME)
+                .inside(ImpexFullHeaderParameter.class)
+                .inside(ImpexModifiers.class),
             ImpexHeaderAttributeModifierNameCompletionProvider.getInstance()
         );
 
         // case: header type value -> attribute_value
         extend(
             CompletionType.BASIC,
-            PlatformPatterns.psiElement()
-                            .withLanguage(ImpexLanguage.getInstance())
-                            .withElementType(ImpexTypes.ATTRIBUTE_VALUE)
-                            .inside(ImpexFullHeaderType.class)
-                            .inside(ImpexModifiers.class),
+            psiElement()
+                .withLanguage(ImpexLanguage.getInstance())
+                .withElementType(ImpexTypes.ATTRIBUTE_VALUE)
+                .inside(ImpexFullHeaderType.class)
+                .inside(ImpexModifiers.class),
             ImpexHeaderTypeModifierValueCompletionProvider.getInstance()
         );
 
         // case: header attribute's modifier value -> attribute_value
         extend(
             CompletionType.BASIC,
-            PlatformPatterns.psiElement()
-                            .withLanguage(ImpexLanguage.getInstance())
-                            .withElementType(ImpexTypes.ATTRIBUTE_VALUE)
-                            .inside(ImpexFullHeaderParameter.class)
-                            .inside(ImpexModifiers.class),
+            psiElement()
+                .withLanguage(ImpexLanguage.getInstance())
+                .withElementType(ImpexTypes.ATTRIBUTE_VALUE)
+                .inside(ImpexFullHeaderParameter.class)
+                .inside(ImpexModifiers.class),
             ImpexHeaderAttributeModifierValueCompletionProvider.getInstance()
         );
 
         // case: itemtype-code
         extend(
             CompletionType.BASIC,
-            PlatformPatterns.psiElement()
-                            .withLanguage(ImpexLanguage.getInstance())
-                            .withElementType(ImpexTypes.HEADER_TYPE),
-            ImpexHeaderItemTypeCodeCompletionProvider.getInstance()
+            psiElement()
+                .withLanguage(ImpexLanguage.getInstance())
+                .withElementType(ImpexTypes.HEADER_TYPE),
+            ItemTypeCodeCompletionProvider.getInstance()
         );
 
         // case: item's attribute
         extend(
             CompletionType.BASIC,
-            PlatformPatterns.psiElement()
-                            .withLanguage(ImpexLanguage.getInstance())
-                            .withElementType(ImpexTypes.HEADER_PARAMETER_NAME),
+            psiElement()
+                .withLanguage(ImpexLanguage.getInstance())
+                .withElementType(ImpexTypes.HEADER_PARAMETER_NAME),
             ImpexHeaderItemTypeAttributeNameCompletionProvider.getInstance()
         );
+        // case: impex keywords
+        extend(
+            CompletionType.BASIC,
+            topLevel(),
+            new ImpexKeywordCompletionProvider(ImpexKeywords.keywords(), (keyword) ->
+                LookupElementBuilder.create(keyword)
+                                    .withIcon(AllIcons.Nodes.Function))
+        );
+
+        // case: macros keywords
+        extend(
+            CompletionType.BASIC,
+            topLevel(),
+            new ImpexKeywordCompletionProvider(ImpexKeywords.keywordMacros(), (keyword) ->
+                LookupElementBuilder.create(keyword)
+                                    .withIcon(HybrisIcons.MACROS))
+        );
+
+        // case: impex macros
+        extend(
+            CompletionType.BASIC,
+            psiElement()
+                .withLanguage(ImpexLanguage.getInstance())
+                .withElementType(ImpexTypes.MACRO_USAGE),
+            new ImpexMacrosCompletionProvider()
+        );
+
+    }
+
+    private static PsiElementPattern.Capture<PsiElement> topLevel() {
+        return psiElement()
+            .withLanguage(ImpexLanguage.getInstance())
+            .andNot(psiElement()
+                        // FIXME bad code, but working
+                        .andOr(
+                            psiElement(ImpexTypes.HEADER_TYPE),
+                            psiElement(ImpexTypes.MACRO_NAME_DECLARATION),
+                            psiElement(ImpexTypes.ROOT_MACRO_USAGE),
+                            psiElement(ImpexTypes.MACRO_DECLARATION),
+                            psiElement(ImpexTypes.ASSIGN_VALUE),
+                            psiElement(ImpexTypes.MACRO_VALUE),
+                            psiElement(ImpexTypes.ATTRIBUTE),
+                            psiElement(ImpexTypes.HEADER_TYPE_NAME),
+                            psiElement(ImpexTypes.HEADER_PARAMETER_NAME),
+                            psiElement(ImpexTypes.ATTRIBUTE_NAME),
+                            psiElement(ImpexTypes.FIELD_VALUE),
+                            psiElement(ImpexTypes.ATTRIBUTE_VALUE)
+                        )
+            );
     }
 }

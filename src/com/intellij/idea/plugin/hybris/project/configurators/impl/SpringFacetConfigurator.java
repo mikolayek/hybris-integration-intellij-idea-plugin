@@ -21,15 +21,18 @@ package com.intellij.idea.plugin.hybris.project.configurators.impl;
 import com.intellij.facet.FacetType;
 import com.intellij.facet.FacetTypeRegistry;
 import com.intellij.facet.ModifiableFacetModel;
+import com.intellij.idea.plugin.hybris.project.configurators.FacetConfigurator;
 import com.intellij.idea.plugin.hybris.project.descriptors.HybrisModuleDescriptor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.spring.contexts.model.LocalXmlModel;
 import com.intellij.spring.facet.SpringFacet;
 import com.intellij.spring.facet.SpringFacetConfiguration;
 import com.intellij.spring.facet.SpringFileSet;
+import com.intellij.spring.facet.beans.CustomSetting;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,12 +41,15 @@ import java.io.File;
 /**
  * Created by Martin Zdarsky (martin.zdarsky@hybris.com) on 7/08/15.
  */
-public class SpringFacetConfigurator extends AbstractFacetConfigurator {
+public class SpringFacetConfigurator implements FacetConfigurator {
 
-    protected void configureInner(@NotNull final ModifiableFacetModel modifiableFacetModel,
-                                  @NotNull final HybrisModuleDescriptor moduleDescriptor,
-                                  @NotNull final Module javaModule,
-                                  @NotNull final ModifiableRootModel modifiableRootModel) {
+    @Override
+    public void configure(
+        @NotNull final ModifiableFacetModel modifiableFacetModel,
+        @NotNull final HybrisModuleDescriptor moduleDescriptor,
+        @NotNull final Module javaModule,
+        @NotNull final ModifiableRootModel modifiableRootModel
+    ) {
         Validate.notNull(javaModule);
         Validate.notNull(modifiableFacetModel);
         Validate.notNull(moduleDescriptor);
@@ -77,6 +83,12 @@ public class SpringFacetConfigurator extends AbstractFacetConfigurator {
             if (null != vf) {
                 springFileSet.addFile(vf);
             }
+        }
+        final CustomSetting.BOOLEAN setting = springFacet.findSetting(LocalXmlModel.PROCESS_EXPLICITLY_ANNOTATED);
+
+        if (setting != null) {
+            setting.setBooleanValue(false);
+            setting.apply();
         }
     }
 }

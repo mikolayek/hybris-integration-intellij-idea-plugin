@@ -20,15 +20,18 @@ package com.intellij.idea.plugin.hybris.business.process.diagram.impl;
 
 import com.intellij.diagram.AbstractDiagramElementManager;
 import com.intellij.diagram.presentation.DiagramState;
-import com.intellij.idea.plugin.hybris.business.process.diagram.BpDiagramElementManager;
 import com.intellij.idea.plugin.hybris.business.process.common.BpGraphNode;
 import com.intellij.idea.plugin.hybris.business.process.common.BpGraphService;
+import com.intellij.idea.plugin.hybris.business.process.diagram.BpDiagramElementManager;
+import com.intellij.idea.plugin.hybris.common.services.CommonIdeaService;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.impl.source.html.HtmlFileImpl;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.ui.SimpleColoredText;
 import org.jetbrains.annotations.Nullable;
@@ -41,22 +44,34 @@ import javax.xml.bind.UnmarshalException;
  *
  * @author Alexander Bartash <AlexanderBartash@gmail.com>
  */
-public class BpDiagramElementManagerIml extends AbstractDiagramElementManager<BpGraphNode> implements BpDiagramElementManager {
+public class BpDiagramElementManagerIml extends AbstractDiagramElementManager<BpGraphNode>
+    implements BpDiagramElementManager {
 
     private static final Logger LOG = Logger.getInstance(BpDiagramElementManagerIml.class);
 
     @Nullable
     @Override
     public BpGraphNode findInDataContext(final DataContext dataContext) {
+        final Project project = CommonDataKeys.PROJECT.getData(dataContext);
+        final CommonIdeaService commonIdeaService = ServiceManager.getService(CommonIdeaService.class);
+        if (!commonIdeaService.isHybrisProject(project)) {
+            return null;
+        }
+
         final VirtualFile virtualFile = CommonDataKeys.VIRTUAL_FILE.getData(dataContext);
 
         if (null == virtualFile) {
             return null;
         }
 
+        if (!virtualFile.getName().endsWith("process.xml")) {
+            return null;
+        }
+
         final PsiFile psiFile = CommonDataKeys.PSI_FILE.getData(dataContext);
 
-        if (!(psiFile instanceof XmlFile)) {
+        if (!(psiFile instanceof XmlFile) ||
+            psiFile instanceof HtmlFileImpl) { // but psiFile must not be html.
             return null;
         }
 

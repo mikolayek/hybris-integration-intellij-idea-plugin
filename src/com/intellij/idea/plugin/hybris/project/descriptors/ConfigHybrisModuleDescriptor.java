@@ -18,14 +18,17 @@
 
 package com.intellij.idea.plugin.hybris.project.descriptors;
 
-import com.intellij.idea.plugin.hybris.project.exceptions.HybrisConfigurationException;
 import com.intellij.idea.plugin.hybris.common.HybrisConstants;
+import com.intellij.idea.plugin.hybris.project.exceptions.HybrisConfigurationException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
+import static com.intellij.idea.plugin.hybris.project.descriptors.HybrisModuleDescriptorType.CONFIG;
+import static com.intellij.idea.plugin.hybris.project.descriptors.HybrisModuleDescriptorType.CUSTOM;
 
 /**
  * Created 3:55 PM 13 June 2015.
@@ -35,9 +38,11 @@ import java.util.Set;
 public class ConfigHybrisModuleDescriptor extends AbstractHybrisModuleDescriptor {
 
     private boolean preselected;
+    private boolean mainConfig;
 
-    public ConfigHybrisModuleDescriptor(@NotNull final File moduleRootDirectory,
-                                        @NotNull final HybrisProjectDescriptor rootProjectDescriptor
+    public ConfigHybrisModuleDescriptor(
+        @NotNull final File moduleRootDirectory,
+        @NotNull final HybrisProjectDescriptor rootProjectDescriptor
     ) throws HybrisConfigurationException {
         super(moduleRootDirectory, rootProjectDescriptor);
     }
@@ -45,7 +50,7 @@ public class ConfigHybrisModuleDescriptor extends AbstractHybrisModuleDescriptor
     @NotNull
     @Override
     public String getName() {
-        return HybrisConstants.CONFIG_EXTENSION_NAME;
+        return moduleRootDirectory.getName();
     }
 
     @NotNull
@@ -72,7 +77,15 @@ public class ConfigHybrisModuleDescriptor extends AbstractHybrisModuleDescriptor
     }
 
     @Override
-    public DescriptorType getDescriptorType() {
-        return DescriptorType.CONFIG;
+    public HybrisModuleDescriptorType getDescriptorType() {
+        return isMainConfig() ? CONFIG : CUSTOM;
+    }
+
+    public void setMainConfig(final boolean mainConfig) {
+        this.mainConfig = mainConfig;
+    }
+
+    public boolean isMainConfig() {
+        return mainConfig;
     }
 }

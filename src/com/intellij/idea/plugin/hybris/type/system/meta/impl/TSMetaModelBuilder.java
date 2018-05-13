@@ -18,23 +18,28 @@
 
 package com.intellij.idea.plugin.hybris.type.system.meta.impl;
 
-import com.intellij.idea.plugin.hybris.type.system.meta.TSMetaModel;
+import com.intellij.idea.plugin.hybris.type.system.model.AtomicType;
 import com.intellij.idea.plugin.hybris.type.system.model.CollectionType;
 import com.intellij.idea.plugin.hybris.type.system.model.EnumType;
 import com.intellij.idea.plugin.hybris.type.system.model.ItemType;
 import com.intellij.idea.plugin.hybris.type.system.model.Items;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.search.ProjectScope;
 import com.intellij.psi.stubs.StubIndex;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.util.Processor;
+import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.xml.DomFileElement;
 import com.intellij.util.xml.DomManager;
 import com.intellij.util.xml.stubs.index.DomElementClassIndex;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Created by Martin Zdarsky-Jones (martin.zdarsky@hybris.com) on 15/06/2016.
@@ -43,20 +48,29 @@ public class TSMetaModelBuilder implements Processor<PsiFile> {
 
     private final Project myProject;
     private final DomManager myDomManager;
+    private final Set<VirtualFile> myFilesToExclude;
 
     private TSMetaModelImpl myResult;
+    private final Set<PsiFile> myFiles = ContainerUtil.newHashSet();
 
     public TSMetaModelBuilder(final @NotNull Project project) {
-        this(project, DomManager.getDomManager(project));
+        this(project, Collections.emptyList());
     }
 
-    public TSMetaModelBuilder(final @NotNull Project project, final @NotNull DomManager domManager) {
+    public TSMetaModelBuilder(
+        final @NotNull Project project,
+        @NotNull final Collection<VirtualFile> filesToExclude
+    ) {
         myProject = project;
-        myDomManager = domManager;
+        myDomManager = DomManager.getDomManager(project);
+        myFilesToExclude = ContainerUtil.newHashSet(filesToExclude);
     }
 
-    public TSMetaModel rebuildModel() {
+    @NotNull
+    public TSMetaModelImpl buildModel() {
         myResult = new TSMetaModelImpl();
+        myFiles.clear();
+
         StubIndex.getInstance().processElements(
             DomElementClassIndex.KEY,
             Items.class.getName(),
@@ -70,10 +84,37 @@ public class TSMetaModelBuilder implements Processor<PsiFile> {
         return result;
     }
 
+    @NotNull
+    public TSMetaModelImpl buildModelForFile(@NotNull final PsiFile file) {
+        myResult = new TSMetaModelImpl();
+        myFiles.clear();
+        process(file);
+        final TSMetaModelImpl result = myResult;
+        myResult = null;
+        return result;
+    }
+
+    @NotNull
+    public Set<PsiFile> getFiles() {
+        return myFiles;
+    }
+
+    public static boolean isTsFile(@NotNull final PsiFile file) {
+        return file instanceof XmlFile && DomManager.getDomManager(file.getProject()).getFileElement(
+            (XmlFile) file,
+            Items.class
+        ) != null;
+    }
 
     @SuppressWarnings("ParameterNameDiffersFromOverriddenParameter")
     @Override
     public boolean process(final PsiFile psiFile) {
+        final VirtualFile vFile = psiFile.getVirtualFile();
+
+        if (vFile == null || myFilesToExclude.contains(vFile)) {
+            return true;
+        }
+        myFiles.add(psiFile);
         final DomFileElement<Items> rootWrapper = myDomManager.getFileElement((XmlFile) psiFile, Items.class);
         final Items items = Optional.ofNullable(rootWrapper).map(DomFileElement::getRootElement).orElse(null);
 
@@ -84,6 +125,7 @@ public class TSMetaModelBuilder implements Processor<PsiFile> {
                  .forEach(this::processItemType);
 
             items.getEnumTypes().getEnumTypes().forEach(this::processEnumType);
+            items.getAtomicTypes().getAtomicTypes().forEach(this::processAtomicType);
             items.getCollectionTypes().getCollectionTypes().forEach(this::processCollectionType);
             items.getRelations().getRelations().forEach(myResult::createReference);
         }
@@ -92,8 +134,16 @@ public class TSMetaModelBuilder implements Processor<PsiFile> {
         return true;
     }
 
+    private void processAtomicType(final AtomicType atomicType) {
+        myResult.findOrCreateAtomicType(atomicType);
+    }
+
     private void processEnumType(final @NotNull EnumType enumType) {
-        myResult.findOrCreateEnum(enumType);
+        final TSMetaEnumImpl aEnum = myResult.findOrCreateEnum(enumType);
+
+        if (aEnum != null) {
+            enumType.getValues().forEach(aEnum::createValue);
+        }
     }
 
     private void processCollectionType(final @NotNull CollectionType collectionType) {

@@ -32,12 +32,12 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import static com.intellij.idea.plugin.hybris.impex.utils.ImpexPsiUtils.isLineBreak;
+import static com.intellij.util.containers.ContainerUtil.newArrayList;
 
 /**
  * Created 14:28 01 January 2015
@@ -46,15 +46,17 @@ import static com.intellij.idea.plugin.hybris.impex.utils.ImpexPsiUtils.isLineBr
  */
 public class ImpexFoldingBuilder extends FoldingBuilderEx {
 
-    public static final String GROUP_NAME = "impex";
+    private static final String GROUP_NAME = "impex";
 
     private static final FoldingDescriptor[] EMPTY_ARRAY = new FoldingDescriptor[0];
 
     @NotNull
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull final PsiElement root,
-                                                @NotNull final Document document,
-                                                final boolean quick) {
+    public FoldingDescriptor[] buildFoldRegions(
+        @NotNull final PsiElement root,
+        @NotNull final Document document,
+        final boolean quick
+    ) {
         if (this.isFoldingDisabled()) {
             return EMPTY_ARRAY;
         }
@@ -69,7 +71,7 @@ public class ImpexFoldingBuilder extends FoldingBuilderEx {
         /* Avoid spawning a lot of unnecessary objects for each line break. */
         boolean groupIsNotFresh = false;
 
-        final List<FoldingDescriptor> descriptors = new ArrayList<FoldingDescriptor>();
+        final List<FoldingDescriptor> descriptors = newArrayList();
         for (final PsiElement psiElement : psiElements) {
 
             if (isLineBreak(psiElement)) {
@@ -86,6 +88,7 @@ public class ImpexFoldingBuilder extends FoldingBuilderEx {
         return descriptors.toArray(new FoldingDescriptor[descriptors.size()]);
     }
 
+
     @Contract(pure = true)
     protected boolean isFoldingDisabled() {
         return !HybrisApplicationSettingsComponent.getInstance().getState().isFoldingEnabled();
@@ -98,9 +101,9 @@ public class ImpexFoldingBuilder extends FoldingBuilderEx {
             return Collections.emptyList();
         }
 
-        final List<PsiElement> foldingBlocks = new ArrayList<PsiElement>();
-        PsiTreeUtil.processElements(root, new CollectFilteredElements<PsiElement>(
-                PsiElementFilterFactory.getPsiElementFilter(), foldingBlocks
+        final List<PsiElement> foldingBlocks = newArrayList();
+        PsiTreeUtil.processElements(root, new CollectFilteredElements<>(
+            PsiElementFilterFactory.getPsiElementFilter(), foldingBlocks
         ));
 
         return foldingBlocks;

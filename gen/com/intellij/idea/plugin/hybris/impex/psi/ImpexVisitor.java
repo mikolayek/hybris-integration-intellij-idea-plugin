@@ -55,6 +55,14 @@ public class ImpexVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitMacroNameDec(@NotNull ImpexMacroNameDec o) {
+    visitPsiNamedElement(o);
+  }
+
+  public void visitMacroUsageDec(@NotNull ImpexMacroUsageDec o) {
+    visitPsiNamedElement(o);
+  }
+
   public void visitModifiers(@NotNull ImpexModifiers o) {
     visitPsiElement(o);
   }
@@ -88,6 +96,10 @@ public class ImpexVisitor extends PsiElementVisitor {
   }
 
   public void visitValueLine(@NotNull ImpexValueLine o) {
+    visitPsiElement(o);
+  }
+
+  public void visitPsiNamedElement(@NotNull ImpexPsiNamedElement o) {
     visitPsiElement(o);
   }
 

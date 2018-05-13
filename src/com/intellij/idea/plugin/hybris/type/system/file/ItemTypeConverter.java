@@ -45,7 +45,7 @@ public class ItemTypeConverter extends TypeSystemConverterBase<ItemType> {
         @NotNull final String name, @NotNull final ConvertContext context, @NotNull final TSMetaModel meta
     ) {
         return Optional.ofNullable(meta.findMetaClassByName(name))
-                       .map(TSMetaClass::getAllDomsStream)
+                       .map(TSMetaClass::retrieveAllDomsStream)
                        .orElse(Stream.empty())
                        .findFirst()
                        .orElse(null);
@@ -56,7 +56,7 @@ public class ItemTypeConverter extends TypeSystemConverterBase<ItemType> {
         @NotNull final ConvertContext context, @NotNull final TSMetaModel meta
     ) {
         return meta.getMetaClassesStream()
-                   .map(TSMetaClass::getAllDomsStream)
+                   .map(TSMetaClass::retrieveAllDomsStream)
                    .map(Stream::findFirst)
                    .filter(Optional::isPresent)
                    .map(Optional::get)

@@ -1,0 +1,76 @@
+<idea-plugin>
+    <resource-bundle>i18n.HybrisBundle</resource-bundle>
+
+    <extensions defaultExtensionNs="com.intellij">
+
+        <treeStructureProvider implementation="com.intellij.idea.plugin.hybris.view.HybrisProjectView"/>
+
+        <projectService serviceInterface="com.intellij.idea.plugin.hybris.settings.HybrisProjectSettingsComponent"
+                        serviceImplementation="com.intellij.idea.plugin.hybris.settings.HybrisProjectSettingsComponent"/>
+
+        <applicationService
+            serviceInterface="com.intellij.idea.plugin.hybris.settings.HybrisApplicationSettingsComponent"
+            serviceImplementation="com.intellij.idea.plugin.hybris.settings.HybrisApplicationSettingsComponent"/>
+
+        <applicationService serviceInterface="com.intellij.idea.plugin.hybris.common.services.CommonIdeaService"
+                            serviceImplementation="com.intellij.idea.plugin.hybris.common.services.impl.DefaultCommonIdeaService"/>
+
+        <applicationService serviceInterface="com.intellij.idea.plugin.hybris.common.services.VirtualFileSystemService"
+                            serviceImplementation="com.intellij.idea.plugin.hybris.common.services.impl.DefaultVirtualFileSystemService"/>
+
+        <psi.referenceContributor language="XML"
+                                  implementation="com.intellij.idea.plugin.hybris.reference.contributor.HybrisItemXmlReferenceContributor"/>
+        <psi.referenceContributor language="XML"
+                                  implementation="com.intellij.idea.plugin.hybris.reference.contributor.HybrisProcessReferenceContributor"/>
+
+
+        <codeInsight.lineMarkerProvider language="JAVA"
+                                        implementationClass="com.intellij.idea.plugin.hybris.linemaker.HybrisItemLineMakerProvider"/>
+        <codeInsight.lineMarkerProvider language="JAVA"
+                                        implementationClass="com.intellij.idea.plugin.hybris.linemaker.HybrisBeanLineMakerProvider"/>
+
+        <completion.contributor language="XML"
+                                implementationClass="com.intellij.idea.plugin.hybris.completion.ExtensionsNameContributor"/>
+
+        <localInspection shortName="DuplicateBeanDefinitionInspection" displayName="Duplicate bean definition in -beans.xml file"
+                         groupName="Bean Definition" level="ERROR" language="XML" enabledByDefault="true"
+                         implementationClass="com.intellij.idea.plugin.hybris.inspections.DuplicateBeanDefinitionInspection"/>
+
+        <internalFileTemplate name="FlexibleSearch File"/>
+        <internalFileTemplate name="Impex File"/>
+
+        <projectService serviceImplementation="com.intellij.idea.plugin.hybris.tools.remote.console.view.HybrisConsolePanelView"/>
+    </extensions>
+
+    <project-components>
+        <component>
+            <implementation-class>com.intellij.idea.plugin.hybris.tools.remote.http.HybrisHacHttpClient</implementation-class>
+        </component>
+    </project-components>
+
+    <actions>
+        <group id="HybrisToolsActions"
+               text="hybris"
+               icon="/icons/hybrisIcon.png"
+               popup="true"
+               class="com.intellij.idea.plugin.hybris.actions.HybrisToolsActionGroup">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </group>
+        <!--
+        <action id="GenerateDomModel"
+                class="com.intellij.idea.plugin.hybris.type.system.file.dom.generator.GenerateDomModelAction"
+                text="Generate DOM Model...">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+        -->
+        <action id="Console.Execute.Immediately" 
+                class="com.intellij.openapi.actionSystem.EmptyAction"
+                text="Execute Current Statement">
+            <keyboard-shortcut keymap="$default" first-keystroke="alt ENTER"/>
+        </action>
+    </actions>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="Hybris Console [Experimental]" icon="/icons/hybrisIcon.png" anchor="bottom" factoryClass="com.intellij.idea.plugin.hybris.tools.remote.console.HybrisConsoleToolWindowFactory"/>
+    </extensions>
+</idea-plugin>

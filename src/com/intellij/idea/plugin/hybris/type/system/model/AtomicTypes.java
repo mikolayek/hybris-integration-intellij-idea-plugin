@@ -44,7 +44,7 @@ public interface AtomicTypes extends DomElement {
      * @return the list of atomicType children.
      */
     @NotNull
-    @SubTagList("atomicType")
+    @SubTagList("atomictype")
     java.util.List<AtomicType> getAtomicTypes();
 
     /**
@@ -52,7 +52,7 @@ public interface AtomicTypes extends DomElement {
      *
      * @return created child
      */
-    @SubTagList("atomicType")
+    @SubTagList("atomictype")
     AtomicType addAtomicType();
 
 

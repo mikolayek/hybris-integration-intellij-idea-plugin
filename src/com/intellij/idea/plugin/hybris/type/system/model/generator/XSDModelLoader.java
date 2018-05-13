@@ -639,10 +639,11 @@ public class XSDModelLoader implements ModelLoader {
                         //logwarn("forward decl: "+etRoot);
                         jtMap.put(
                             fd1.contentQualifiedName,
-                            new TypeDesc(etRoot.getName(),
-                                         etRoot.getNamespace(),
-                                         fd1.type,
-                                         TypeDesc.TypeEnum.CLASS
+                            new TypeDesc(
+                                etRoot.getName(),
+                                etRoot.getNamespace(),
+                                fd1.type,
+                                TypeDesc.TypeEnum.CLASS
                             )
                         );
                     }

@@ -41,6 +41,10 @@ class CaseInsensitive {
             myMap.put(eraseCase(key), value);
         }
 
+        public void putAll(@NotNull final NoCaseMap<V> map) {
+            myMap.putAll(map.myMap);
+        }
+
         @Nullable
         public V get(final @NotNull String key) {
             return myMap.get(eraseCase(key));
@@ -58,6 +62,10 @@ class CaseInsensitive {
 
         public void putValue(final @NotNull String key, final @NotNull V value) {
             myMultiMap.putValue(eraseCase(key), value);
+        }
+
+        public void putAllValues(@NotNull final NoCaseMultiMap<V> map) {
+            myMultiMap.putAllValues(map.myMultiMap);
         }
 
         @NotNull

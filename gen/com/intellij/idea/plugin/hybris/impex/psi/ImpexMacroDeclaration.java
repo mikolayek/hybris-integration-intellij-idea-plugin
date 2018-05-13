@@ -7,4 +7,10 @@ import com.intellij.psi.PsiElement;
 
 public interface ImpexMacroDeclaration extends PsiElement {
 
+  @NotNull
+  ImpexMacroNameDec getMacroNameDec();
+
+  @NotNull
+  List<ImpexMacroUsageDec> getMacroUsageDecList();
+
 }

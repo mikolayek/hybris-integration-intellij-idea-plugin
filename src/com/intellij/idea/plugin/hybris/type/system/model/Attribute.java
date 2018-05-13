@@ -22,7 +22,6 @@
 package com.intellij.idea.plugin.hybris.type.system.model;
 
 import com.intellij.idea.plugin.hybris.type.system.file.CompositeConverter;
-import com.intellij.idea.plugin.hybris.type.system.file.EnumTypeConverter;
 import com.intellij.util.xml.Convert;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.GenericAttributeValue;
@@ -170,7 +169,7 @@ public interface Attribute extends DomElement {
      */
     @NotNull
     @SubTag("description")
-    GenericDomValue<String> getDescription();
+    Description getDescription();
 
 
     /**

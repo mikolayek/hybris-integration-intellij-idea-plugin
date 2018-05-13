@@ -19,7 +19,6 @@
 package com.intellij.idea.plugin.hybris.impex.assistance;
 
 import com.intellij.idea.plugin.hybris.common.services.CommonIdeaService;
-import com.intellij.idea.plugin.hybris.type.system.validation.impl.ItemsXMLChangedListener;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
@@ -49,31 +48,38 @@ public class ImpexHeaderHighlighterComponent implements ApplicationComponent {
 
     protected final CommonIdeaService commonIdeaService;
     protected final CaretListener caretListener = new ImpexHeaderHighlightingCaretListener();
+    protected final CaretListener caretColumnListener = new ImpexColumnHighlightingCaretListener();
     protected final ProjectManagerListener projectManagerListener = new ImpexProjectManagerListener();
     protected final PsiTreeChangeListener psiTreeChangeListener = new ImpexPsiTreeChangeListener();
     protected final EditorFactoryListener editorFactoryListener = new ImpexEditorFactoryListener();
     protected final ImpexHeaderNameHighlighterService impexHeaderNameHighlighterService;
+    protected final ImpexColumnHighlighterService impexColumnHighlighterService;
 
     public ImpexHeaderHighlighterComponent(
         final CommonIdeaService commonIdeaService,
-        final ImpexHeaderNameHighlighterService impexHeaderNameHighlighterService
+        final ImpexHeaderNameHighlighterService impexHeaderNameHighlighterService,
+        final ImpexColumnHighlighterService impexColumnHighlighterService
     ) {
         Validate.notNull(commonIdeaService);
         Validate.notNull(impexHeaderNameHighlighterService);
+        Validate.notNull(impexColumnHighlighterService);
 
         this.commonIdeaService = commonIdeaService;
+        this.impexColumnHighlighterService = impexColumnHighlighterService;
         this.impexHeaderNameHighlighterService = impexHeaderNameHighlighterService;
     }
 
     @Override
     public void initComponent() {
         EditorFactory.getInstance().getEventMulticaster().addCaretListener(caretListener);
+        EditorFactory.getInstance().getEventMulticaster().addCaretListener(caretColumnListener);
         ProjectManager.getInstance().addProjectManagerListener(this.projectManagerListener);
     }
 
     @Override
     public void disposeComponent() {
         EditorFactory.getInstance().getEventMulticaster().removeCaretListener(caretListener);
+        EditorFactory.getInstance().getEventMulticaster().removeCaretListener(caretColumnListener);
         ProjectManager.getInstance().removeProjectManagerListener(this.projectManagerListener);
     }
 
@@ -92,6 +98,26 @@ public class ImpexHeaderHighlighterComponent implements ApplicationComponent {
             }
 
             impexHeaderNameHighlighterService.highlightCurrentHeader(e.getEditor());
+        }
+
+        @Override
+        public void caretAdded(final CaretEvent e) {
+        }
+
+        @Override
+        public void caretRemoved(final CaretEvent e) {
+        }
+    }
+
+    protected class ImpexColumnHighlightingCaretListener implements CaretListener {
+
+        @Override
+        public void caretPositionChanged(final CaretEvent e) {
+            if (commonIdeaService.isTypingActionInProgress()) {
+                return;
+            }
+
+            impexColumnHighlighterService.highlightCurrentColumn(e.getEditor());
         }
 
         @Override
@@ -136,6 +162,7 @@ public class ImpexHeaderHighlighterComponent implements ApplicationComponent {
             }
 
             impexHeaderNameHighlighterService.highlightCurrentHeader(editor);
+            impexColumnHighlighterService.highlightCurrentColumn(editor);
         }
 
         @Override
@@ -209,6 +236,7 @@ public class ImpexHeaderHighlighterComponent implements ApplicationComponent {
         @Override
         public void editorReleased(@NotNull final EditorFactoryEvent editorFactoryEvent) {
             impexHeaderNameHighlighterService.releaseEditorData(editorFactoryEvent.getEditor());
+            impexColumnHighlighterService.releaseEditorData(editorFactoryEvent.getEditor());
         }
     }
 }

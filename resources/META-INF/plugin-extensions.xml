@@ -1,0 +1,13 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+
+        <toolWindow
+            id="Hybris"
+            icon="/icons/hybrisIcon13x13.png"
+            anchor="right"
+            secondary="true"
+            conditionClass="com.intellij.idea.plugin.hybris.toolwindow.HybrisToolWindowCondition"
+            factoryClass="com.intellij.idea.plugin.hybris.toolwindow.HybrisToolWindow"/>
+
+    </extensions>
+</idea-plugin>

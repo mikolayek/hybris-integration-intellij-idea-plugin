@@ -19,6 +19,13 @@
 package com.intellij.idea.plugin.hybris.project.descriptors;
 
 import com.intellij.idea.plugin.hybris.project.exceptions.HybrisConfigurationException;
+import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider;
+import com.intellij.openapi.roots.OrderRootType;
+import com.intellij.openapi.roots.libraries.Library;
+import com.intellij.openapi.roots.libraries.LibraryTable;
+import com.intellij.openapi.roots.ui.configuration.libraryEditor.ExistingLibraryEditor;
+import com.intellij.openapi.roots.ui.configuration.projectRoot.LibrariesModifiableModel;
+import com.intellij.openapi.vfs.VfsUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -36,7 +43,33 @@ public class OotbHybrisModuleDescriptor extends RegularHybrisModuleDescriptor {
     }
 
     @Override
-    public DescriptorType getDescriptorType() {
-        return DescriptorType.OOTB;
+    public HybrisModuleDescriptorType getDescriptorType() {
+        return HybrisModuleDescriptorType.OOTB;
+    }
+
+    public void createGlobalLibrary(
+        @NotNull final IdeModifiableModelsProvider modifiableModelsProvider,
+        @NotNull final File libraryDirRoot,
+        @NotNull final String libraryName
+    ) {
+        final LibraryTable.ModifiableModel libraryTableModifiableModel = modifiableModelsProvider
+            .getModifiableProjectLibrariesModel();
+
+        Library library = libraryTableModifiableModel.getLibraryByName(libraryName);
+        if (null == library) {
+            library = libraryTableModifiableModel.createLibrary(libraryName);
+        }
+
+        if (libraryTableModifiableModel instanceof LibrariesModifiableModel) {
+            final ExistingLibraryEditor existingLibraryEditor = ((LibrariesModifiableModel) libraryTableModifiableModel)
+                .getLibraryEditor(library);
+            existingLibraryEditor.addJarDirectory(
+                VfsUtil.getUrlForLibraryRoot(libraryDirRoot), true, OrderRootType.CLASSES
+            );
+        } else {
+            final Library.ModifiableModel libraryModifiableModel = modifiableModelsProvider
+                .getModifiableLibraryModel(library);
+            libraryModifiableModel.addJarDirectory(VfsUtil.getUrlForLibraryRoot(libraryDirRoot), true);
+        }
     }
 }

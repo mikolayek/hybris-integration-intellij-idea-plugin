@@ -25,10 +25,4 @@ public class ImpexSubParametersImpl extends ImpexParametersImpl implements Impex
     else super.accept(visitor);
   }
 
-  @Override
-  @NotNull
-  public List<ImpexParameter> getParameterList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, ImpexParameter.class);
-  }
-
 }

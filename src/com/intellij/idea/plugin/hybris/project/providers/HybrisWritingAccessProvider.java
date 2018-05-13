@@ -19,15 +19,20 @@
 package com.intellij.idea.plugin.hybris.project.providers;
 
 import com.intellij.idea.plugin.hybris.common.HybrisConstants;
+import com.intellij.openapi.extensions.Extensions;
 import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.WritingAccessProvider;
+import com.intellij.util.ObjectUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -35,7 +40,23 @@ import java.util.Optional;
  */
 public class HybrisWritingAccessProvider extends WritingAccessProvider {
 
+    /**
+     * VirtualFile's marked with tis key are ignored by this provider.
+     * This is needed to allow controlled refactoring for the generated bean classes (which are normally read-only)
+     */
+    public static final Key<Boolean> KEY_TEMPORARY_WRITABLE = Key.create(
+        HybrisWritingAccessProvider.class.getName() + "TemporaryWritable");
+
     private final Project myProject;
+
+    @NotNull
+    public static HybrisWritingAccessProvider getInstance(@NotNull final Project project) {
+        return Arrays.stream(Extensions.getExtensions(EP_NAME, project))
+                     .map(o -> ObjectUtils.tryCast(o, HybrisWritingAccessProvider.class))
+                     .filter(Objects::nonNull)
+                     .findAny()
+                     .orElseThrow(IllegalStateException::new);
+    }
 
     public HybrisWritingAccessProvider(@NotNull final Project project) {
         myProject = project;
@@ -58,10 +79,38 @@ public class HybrisWritingAccessProvider extends WritingAccessProvider {
         return !isFileReadOnly(file);
     }
 
+    /**
+     * Requests to temporary ignore the read-only status provided by this provider.
+     * Does nothing if read-only status is for some other reason
+     */
+    public void markTemporaryWritable(@NotNull VirtualFile vFile) {
+        if (vFile.isValid() && !isPotentiallyWritable(vFile)) {
+            vFile.putUserData(KEY_TEMPORARY_WRITABLE, true);
+        }
+    }
+
+    /**
+     * Clears any possible flag marked by {@link #markTemporaryWritable(VirtualFile)} call
+     */
+    public static void unmarkTemporaryWritable(@NotNull VirtualFile vFile) {
+        if (vFile.isValid()) {
+            vFile.putUserData(KEY_TEMPORARY_WRITABLE, null);
+        }
+    }
+
     protected boolean isFileReadOnly(@NotNull final VirtualFile file) {
+        if (isTemporarilyWritable(file)) {
+            return false;
+        }
         return Optional.ofNullable(ModuleUtilCore.findModuleForFile(file, myProject))
                        .map(module -> module.getOptionValue(HybrisConstants.READ_ONLY))
                        .map(Boolean::parseBoolean)
                        .orElse(false);
     }
+
+    private boolean isTemporarilyWritable(@NotNull final VirtualFile vFile) {
+        Boolean excluded = vFile.getUserData(KEY_TEMPORARY_WRITABLE);
+        return excluded != null && excluded;
+    }
+
 }

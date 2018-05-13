@@ -26,4 +26,5 @@ import com.intellij.lang.parser.GeneratedParserUtilBase;
  * @author Alexander Bartash <AlexanderBartash@gmail.com>
  */
 public class ImpexParserUtils extends GeneratedParserUtilBase {
+
 }

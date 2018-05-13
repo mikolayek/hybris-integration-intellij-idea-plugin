@@ -8,6 +8,9 @@ import com.intellij.psi.PsiElement;
 public interface ImpexValue extends PsiElement {
 
   @NotNull
+  List<ImpexMacroUsageDec> getMacroUsageDecList();
+
+  @NotNull
   List<ImpexString> getStringList();
 
 }

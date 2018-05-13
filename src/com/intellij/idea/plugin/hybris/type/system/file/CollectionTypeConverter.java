@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -41,7 +42,7 @@ public class CollectionTypeConverter extends TypeSystemConverterBase<CollectionT
         @NotNull final String name, @NotNull final ConvertContext context, @NotNull final TSMetaModel meta
     ) {
         return Optional.ofNullable(meta.findMetaCollectionByName(name))
-                       .map(TSMetaCollection::getDom)
+                       .map(TSMetaCollection::retrieveDom)
                        .orElse(null);
     }
 
@@ -50,8 +51,8 @@ public class CollectionTypeConverter extends TypeSystemConverterBase<CollectionT
         @NotNull final ConvertContext context, @NotNull final TSMetaModel meta
     ) {
         return meta.getMetaCollectionsStream()
-                   .map(TSMetaCollection::getDom)
-                   .filter(dom -> dom != null)
+                   .map(TSMetaCollection::retrieveDom)
+                   .filter(Objects::nonNull)
                    .collect(Collectors.toList());
     }
 

@@ -19,9 +19,13 @@
 package com.intellij.idea.plugin.hybris.type.system.meta.impl;
 
 import com.intellij.idea.plugin.hybris.type.system.meta.TSMetaClassifier;
+import com.intellij.idea.plugin.hybris.type.system.meta.TSMetaModel;
 import com.intellij.idea.plugin.hybris.type.system.meta.TSMetaReference;
 import com.intellij.idea.plugin.hybris.type.system.model.Relation;
 import com.intellij.idea.plugin.hybris.type.system.model.RelationElement;
+import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.util.xml.DomAnchor;
+import com.intellij.util.xml.DomService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,8 +62,11 @@ class TSMetaReferenceImpl extends TSMetaEntityImpl<Relation> implements TSMetaRe
     private static class ReferenceEndImpl implements ReferenceEnd {
 
         private final TSMetaModelImpl myMetaModel;
-        private final RelationElement myDom;
+        private final DomAnchor<RelationElement> myDomAnchor;
         private final TSMetaReference myOwner;
+        private final String myTypeName;
+        private final String myRole;
+        private final boolean myNavigatable;
 
         public ReferenceEndImpl(
             final @NotNull TSMetaModelImpl metaModel,
@@ -68,13 +75,16 @@ class TSMetaReferenceImpl extends TSMetaEntityImpl<Relation> implements TSMetaRe
         ) {
             myOwner = owner;
             myMetaModel = metaModel;
-            myDom = dom;
+            myDomAnchor = DomService.getInstance().createAnchor(dom);
+            myTypeName = StringUtil.notNullize(dom.getType().getStringValue());
+            myRole = StringUtil.notNullize(dom.getQualifier().getStringValue());
+            myNavigatable = Optional.ofNullable(dom.getNavigable().getValue()).orElse(true);
         }
 
         @NotNull
         @Override
         public String getTypeName() {
-            return notNull(myDom.getType().getStringValue());
+            return myTypeName;
         }
 
         @Nullable
@@ -83,22 +93,21 @@ class TSMetaReferenceImpl extends TSMetaEntityImpl<Relation> implements TSMetaRe
             return myMetaModel.findMetaClassByName(getTypeName());
         }
 
-        @NotNull
+        @Nullable
         @Override
-        public RelationElement getDom() {
-            return myDom;
+        public RelationElement retrieveDom() {
+            return myDomAnchor.retrieveDomElement();
         }
 
         @NotNull
         @Override
         public String getRole() {
-            return notNull(myDom.getQualifier().getStringValue());
+            return myRole;
         }
 
         @Override
         public boolean isNavigable() {
-            // navigable default is true
-            return Optional.ofNullable(myDom.getNavigable().getValue()).orElse(true);
+            return myNavigatable;
         }
 
         @NotNull
@@ -107,8 +116,10 @@ class TSMetaReferenceImpl extends TSMetaEntityImpl<Relation> implements TSMetaRe
             return myOwner;
         }
 
-        private static String notNull(final @Nullable String text) {
-            return text == null ? "" : text;
+        @NotNull
+        @Override
+        public TSMetaModel getMetaModel() {
+            return myMetaModel;
         }
     }
 }

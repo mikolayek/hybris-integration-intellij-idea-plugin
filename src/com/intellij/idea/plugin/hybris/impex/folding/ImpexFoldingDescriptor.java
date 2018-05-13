@@ -25,6 +25,8 @@ import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Function;
+
 /**
  * Created 22:34 01 January 2015
  *
@@ -34,18 +36,31 @@ public class ImpexFoldingDescriptor extends FoldingDescriptor {
 
     private final String placeholder;
 
-    public ImpexFoldingDescriptor(@NotNull final PsiElement psiElement,
-                                  @NotNull final FoldingGroup group) {
+    public ImpexFoldingDescriptor(
+        @NotNull final PsiElement psiElement,
+        @NotNull final FoldingGroup group
+    ) {
         super(
-                psiElement.getNode(),
-                new TextRange(
-                        psiElement.getTextRange().getStartOffset(),
-                        psiElement.getTextRange().getEndOffset()
-                ),
-                group
+            psiElement.getNode(),
+            new TextRange(
+                psiElement.getTextRange().getStartOffset(),
+                psiElement.getTextRange().getEndOffset()
+            ),
+            group
         );
 
         placeholder = ImpexFoldingPlaceholderBuilderFactory.getPlaceholderBuilder().getPlaceholder(psiElement);
+    }
+
+    public ImpexFoldingDescriptor(
+        @NotNull final PsiElement psiElement,
+        final int startOffset, final int endOffset,
+        @NotNull final FoldingGroup group,
+        Function<PsiElement, String> placeholderFunction
+    ) {
+        super(psiElement.getNode(), new TextRange(startOffset, endOffset), group);
+
+        placeholder = placeholderFunction.apply(psiElement);
     }
 
     @Nullable

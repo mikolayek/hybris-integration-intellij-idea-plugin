@@ -18,31 +18,24 @@
 
 package com.intellij.idea.plugin.hybris.project.configurators.impl;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.intellij.idea.plugin.hybris.project.configurators.ModulesDependenciesConfigurator;
 import com.intellij.idea.plugin.hybris.project.descriptors.ExtHybrisModuleDescriptor;
 import com.intellij.idea.plugin.hybris.project.descriptors.HybrisModuleDescriptor;
 import com.intellij.idea.plugin.hybris.project.descriptors.HybrisProjectDescriptor;
 import com.intellij.idea.plugin.hybris.project.descriptors.OotbHybrisModuleDescriptor;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider;
 import com.intellij.openapi.module.ModifiableModuleModel;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.DependencyScope;
-import com.intellij.openapi.roots.IdeaModifiableModelsProvider;
-import com.intellij.openapi.roots.ModifiableModelsProvider;
 import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.roots.ModuleOrderEntry;
-import org.apache.commons.lang3.Validate;
+import com.intellij.openapi.roots.ModuleRootModificationUtil;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -53,45 +46,38 @@ import java.util.stream.Collectors;
  */
 public class DefaultModulesDependenciesConfigurator implements ModulesDependenciesConfigurator {
 
-    private static final Logger LOG = Logger.getInstance(DefaultModulesDependenciesConfigurator.class);
-    protected final ModifiableModelsProvider modifiableModelsProvider = new IdeaModifiableModelsProvider();
-
     @Override
-    public void configure(final @NotNull HybrisProjectDescriptor hybrisProjectDescriptor,
-                          final @NotNull ModifiableModuleModel rootProjectModifiableModuleModel) {
-        Validate.notNull(hybrisProjectDescriptor);
-        Validate.notNull(rootProjectModifiableModuleModel);
-
-        final List<Module> modules = Arrays.asList(rootProjectModifiableModuleModel.getModules());
-        final Collection<ModifiableRootModel> modifiableRootModels = modules
-            .stream()
-            .map(this.modifiableModelsProvider::getModuleModifiableModel)
-            .collect(Collectors.toCollection(ArrayList::new));
-
+    public void configure(
+        final @NotNull HybrisProjectDescriptor hybrisProjectDescriptor,
+        final @NotNull IdeModifiableModelsProvider modifiableModelsProvider
+    ) {
+        final List<Module> modules = Arrays.asList(modifiableModelsProvider.getModules());
         final Set<HybrisModuleDescriptor> extModules = hybrisProjectDescriptor
             .getModulesChosenForImport()
             .stream()
             .filter(moduleDescriptor -> moduleDescriptor instanceof ExtHybrisModuleDescriptor)
             .collect(Collectors.toSet());
 
-        for (HybrisModuleDescriptor moduleDescriptor : hybrisProjectDescriptor.getModulesChosenForImport()) {
-            final ModifiableRootModel modifiableRootModel = Iterables.find(
-                modifiableRootModels,
-                new FindModifiableRootModelByName(moduleDescriptor.getName())
-            );
-
-            this.configureModuleDependencies(moduleDescriptor, modifiableRootModel, modifiableRootModels, extModules);
+        for (final HybrisModuleDescriptor nextDescriptor : hybrisProjectDescriptor.getModulesChosenForImport()) {
+            findModuleByNameIgnoreCase(modules, nextDescriptor.getName())
+                .ifPresent(nextModule -> configureModuleDependencies(
+                    nextDescriptor,
+                    nextModule,
+                    modules,
+                    extModules,
+                    modifiableModelsProvider
+                ));
         }
     }
 
-    protected void configureModuleDependencies(@NotNull final HybrisModuleDescriptor moduleDescriptor,
-                                               @NotNull final ModifiableRootModel modifiableRootModel,
-                                               @NotNull final Collection<ModifiableRootModel> modifiableRootModels,
-                                               @NotNull final Set<HybrisModuleDescriptor> extModules) {
-        Validate.notNull(moduleDescriptor);
-        Validate.notNull(modifiableRootModel);
-        Validate.notNull(modifiableRootModels);
-        Validate.notNull(extModules);
+    private void configureModuleDependencies(
+        @NotNull final HybrisModuleDescriptor moduleDescriptor,
+        @NotNull final Module module,
+        @NotNull final Collection<Module> allModules,
+        @NotNull final Set<HybrisModuleDescriptor> extModules,
+        final @NotNull IdeModifiableModelsProvider modifiableModelsProvider
+    ) {
+        final ModifiableRootModel rootModel = modifiableModelsProvider.getModifiableRootModel(module);
 
         for (HybrisModuleDescriptor dependency : moduleDescriptor.getDependenciesTree()) {
             if (moduleDescriptor instanceof OotbHybrisModuleDescriptor) {
@@ -100,43 +86,21 @@ public class DefaultModulesDependenciesConfigurator implements ModulesDependenci
                 }
             }
 
-            final Optional<ModifiableRootModel> dependsOnModifiableRootModelOptional = Iterables.tryFind(
-                modifiableRootModels,
-                new FindModifiableRootModelByName(dependency.getName())
-            );
-
-            final ModuleOrderEntry moduleOrderEntry = (dependsOnModifiableRootModelOptional.isPresent())
-                ? modifiableRootModel.addModuleOrderEntry(dependsOnModifiableRootModelOptional.get().getModule())
-                : modifiableRootModel.addInvalidModuleEntry(dependency.getName());
+            Optional<Module> targetDependencyModule = findModuleByNameIgnoreCase(allModules, dependency.getName());
+            final ModuleOrderEntry moduleOrderEntry = targetDependencyModule.isPresent()
+                ? rootModel.addModuleOrderEntry(targetDependencyModule.get())
+                : rootModel.addInvalidModuleEntry(dependency.getName());
 
             moduleOrderEntry.setExported(true);
             moduleOrderEntry.setScope(DependencyScope.COMPILE);
         }
-
-        this.commitModule(modifiableRootModel);
     }
 
-    protected void commitModule(@NotNull final ModifiableRootModel modifiableRootModel) {
-        Validate.notNull(modifiableRootModel);
-
-        ApplicationManager.getApplication().runWriteAction(
-            () -> modifiableModelsProvider.commitModuleModifiableModel(modifiableRootModel)
-        );
+    private static Optional<Module> findModuleByNameIgnoreCase(
+        final @NotNull Collection<Module> all,
+        final @NotNull String name
+    ) {
+        return all.stream().filter(m -> name.equalsIgnoreCase(m.getName())).findAny();
     }
 
-    private static class FindModifiableRootModelByName implements Predicate<ModifiableRootModel> {
-
-        private final String name;
-
-        public FindModifiableRootModelByName(@NotNull final String name) {
-            Validate.notEmpty(name);
-
-            this.name = name;
-        }
-
-        @Override
-        public boolean apply(@Nullable final ModifiableRootModel t) {
-            return null != t && this.name.equalsIgnoreCase(t.getModule().getName());
-        }
-    }
 }

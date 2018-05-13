@@ -1,0 +1,78 @@
+package com.intellij.idea.plugin.hybris.flexibleSearch.references
+
+import com.intellij.extapi.psi.ASTWrapperPsiElement
+import com.intellij.idea.plugin.hybris.flexibleSearch.psi.FlexibleSearchTableName
+import com.intellij.idea.plugin.hybris.psi.references.TypeSystemReferenceBase
+import com.intellij.idea.plugin.hybris.type.system.model.ItemType
+import com.intellij.idea.plugin.hybris.type.system.model.Relation
+import com.intellij.lang.ASTNode
+import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiReference
+import com.intellij.psi.ResolveResult
+import java.util.Optional
+import java.util.stream.Stream
+import kotlin.streams.toList
+
+/**
+ * @author Nosov Aleksandr <nosovae.dev@gmail.com>
+ */
+
+abstract class TypeNameMixin(astNode: ASTNode) : ASTWrapperPsiElement(astNode), FlexibleSearchTableName {
+
+    private var myReference: TypeSystemItemRef? = null
+
+    override fun getReferences(): Array<PsiReference> {
+        if (myReference == null) {
+            myReference = TypeSystemItemRef(this)
+        }
+        return arrayOf(myReference!!)
+    }
+
+    override fun clone(): Any {
+        val result = super.clone() as TypeNameMixin
+        result.myReference = null
+        return result
+    }
+}
+
+class TypeSystemItemRef(owner: FlexibleSearchTableName) : TypeSystemReferenceBase<FlexibleSearchTableName>(owner) {
+
+    override fun multiResolve(incompleteCode: Boolean): Array<ResolveResult> {
+        val meta = typeSystemMeta
+        val lookingForName = element.text
+        val res0 = Optional.ofNullable(meta.findMetaClassByName(lookingForName))
+                .map({ it.retrieveAllDomsStream() })
+                .orElse(Stream.empty())
+                .map({ ItemTypeResolveResult(it) })
+                .toList()
+
+        val res1 = meta.findRelationByName(lookingForName)
+                .distinctBy { it.name }
+                .map { it.retrieveDom() }
+                .map({ RelationResolveResult(it) })
+                .toList()
+
+        return (res0 + res1).toTypedArray()
+    }
+
+    private class ItemTypeResolveResult(private val myDomItemType: ItemType) : ResolveResult {
+
+        override fun getElement(): PsiElement? {
+            val codeAttr = myDomItemType.code
+            return codeAttr.xmlAttributeValue
+        }
+
+        override fun isValidResult() = element != null
+    }
+
+    private class RelationResolveResult(private val myDomItemType: Relation) : ResolveResult {
+
+        override fun getElement(): PsiElement? {
+            val codeAttr = myDomItemType.code
+            return codeAttr.xmlAttributeValue
+        }
+
+        override fun isValidResult() = element != null
+    }
+
+}

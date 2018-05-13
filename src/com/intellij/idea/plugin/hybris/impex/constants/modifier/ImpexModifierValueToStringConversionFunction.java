@@ -20,7 +20,6 @@ package com.intellij.idea.plugin.hybris.impex.constants.modifier;
 
 import com.google.common.base.Function;
 import org.apache.commons.lang3.Validate;
-
 import org.jetbrains.annotations.Nullable;
 
 /**

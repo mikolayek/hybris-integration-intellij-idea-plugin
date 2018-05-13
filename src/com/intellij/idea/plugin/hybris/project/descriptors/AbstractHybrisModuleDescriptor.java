@@ -19,10 +19,11 @@
 package com.intellij.idea.plugin.hybris.project.descriptors;
 
 import com.intellij.idea.plugin.hybris.common.HybrisConstants;
+import com.intellij.idea.plugin.hybris.common.HybrisUtil;
 import com.intellij.idea.plugin.hybris.common.services.VirtualFileSystemService;
 import com.intellij.idea.plugin.hybris.project.exceptions.HybrisConfigurationException;
 import com.intellij.openapi.components.ServiceManager;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.jetbrains.annotations.NotNull;
@@ -51,9 +52,11 @@ public abstract class AbstractHybrisModuleDescriptor implements HybrisModuleDesc
     protected Set<String> springFileSet = new HashSet<String>();
 
     private boolean inLocalExtensions;
+    private IMPORT_STATUS importStatus = IMPORT_STATUS.UNUSED;
 
-    public AbstractHybrisModuleDescriptor(@NotNull final File moduleRootDirectory,
-                                          @NotNull final HybrisProjectDescriptor rootProjectDescriptor
+    public AbstractHybrisModuleDescriptor(
+        @NotNull final File moduleRootDirectory,
+        @NotNull final HybrisProjectDescriptor rootProjectDescriptor
     ) throws HybrisConfigurationException {
         Validate.notNull(moduleRootDirectory);
         Validate.notNull(rootProjectDescriptor);
@@ -131,7 +134,7 @@ public abstract class AbstractHybrisModuleDescriptor implements HybrisModuleDesc
     @Override
     public Set<HybrisModuleDescriptor> getDependenciesPlainList() {
         return Collections.unmodifiableSet(this.recursivelyCollectDependenciesPlainSet(
-            this, new TreeSet<HybrisModuleDescriptor>()
+            this, new TreeSet<>()
         ));
     }
 
@@ -166,8 +169,8 @@ public abstract class AbstractHybrisModuleDescriptor implements HybrisModuleDesc
     }
 
     @Override
-    public void addSpringFile(@NotNull final String springFile) {
-        this.springFileSet.add(springFile);
+    public boolean addSpringFile(@NotNull final String springFile) {
+        return this.springFileSet.add(springFile);
     }
 
     @Override
@@ -181,28 +184,13 @@ public abstract class AbstractHybrisModuleDescriptor implements HybrisModuleDesc
     }
 
     @Override
-    public boolean isInCustomDir() {
-        if (!isCustomExtensionsPresent()) {
-            return false;
-        }
-        if (null == this.getRootProjectDescriptor().getCustomExtensionsDirectory()) {
-            throw new IllegalStateException("CustomExtensionsDirectory is not set.");
-        } else {
-
-            final VirtualFileSystemService virtualFileSystemService = ServiceManager.getService(
-                VirtualFileSystemService.class
-            );
-
-            return virtualFileSystemService.fileContainsAnother(
-                this.getRootProjectDescriptor().getCustomExtensionsDirectory(),
-                this.moduleRootDirectory
-            );
-        }
+    public IMPORT_STATUS getImportStatus() {
+        return importStatus;
     }
 
     @Override
-    public boolean isCustomExtensionsPresent() {
-        return this.getRootProjectDescriptor().isCustomExtensionsPresent();
+    public void setImportStatus(final IMPORT_STATUS importStatus) {
+        this.importStatus = importStatus;
     }
 
     @Nullable
@@ -213,7 +201,17 @@ public abstract class AbstractHybrisModuleDescriptor implements HybrisModuleDesc
 
     @Override
     public boolean isAddOn() {
-        return new File(this.getRootDirectory(), HybrisConstants.ACCELERATOR_ADDON_DIRECTORY).isDirectory();
+        return HybrisUtil.isAcceleratorAddOnModuleRoot(getRootDirectory());
+    }
+
+    @Override
+    public boolean hasServerJar() {
+        final File binDir = new File(this.getRootDirectory(), HybrisConstants.BIN_DIRECTORY);
+        if (!binDir.isDirectory()) {
+            return false;
+        }
+        final File[] serverJars = binDir.listFiles((dir, name) -> name.equals("server.jar"));
+        return serverJars.length > 0;
     }
 
     @Override
@@ -244,7 +242,7 @@ public abstract class AbstractHybrisModuleDescriptor implements HybrisModuleDesc
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ConfigHybrisModuleDescriptor{");
+        final StringBuilder sb = new StringBuilder(this.getClass().getSimpleName() + " {");
         sb.append("name='").append(this.getName()).append('\'');
         sb.append(", moduleRootDirectory=").append(moduleRootDirectory);
         sb.append(", moduleFile=").append(this.getIdeaModuleFile());

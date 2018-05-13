@@ -25,7 +25,6 @@ import com.intellij.idea.plugin.hybris.type.system.file.ItemTypeConverter;
 import com.intellij.util.xml.Convert;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.GenericAttributeValue;
-import com.intellij.util.xml.GenericDomValue;
 import com.intellij.util.xml.NameValue;
 import com.intellij.util.xml.Required;
 import com.intellij.util.xml.Stubbed;
@@ -216,7 +215,7 @@ public interface ItemType extends DomElement {
      */
     @NotNull
     @SubTag("description")
-    GenericDomValue<String> getDescription();
+    Description getDescription();
 
 
     /**

@@ -22,8 +22,8 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
-
 import org.jetbrains.annotations.Nullable;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,10 +38,10 @@ import static com.intellij.idea.plugin.hybris.impex.constants.ImpexConstants.Mod
  */
 public enum TypeModifier implements ImpexModifier {
 
-    BATCH_MODE        ("batchmode"        , BOOLEAN),
-    CACHE_UNIQUE      ("cacheUnique"      , BOOLEAN),
-    IMPEX_LEGACY_MODE ("impex.legacy.mode", BOOLEAN),
-    PROCESSOR         ("processor"        , NONE);
+    BATCH_MODE("batchmode", BOOLEAN),
+    CACHE_UNIQUE("cacheUnique", BOOLEAN),
+    IMPEX_LEGACY_MODE("impex.legacy.mode", BOOLEAN),
+    PROCESSOR("processor", NONE);
 
     private final String modifierName;
     private final List<String> modifierValues;
@@ -63,8 +63,10 @@ public enum TypeModifier implements ImpexModifier {
         return ELEMENTS_MAP.get(modifierName);
     }
 
-    TypeModifier(@NotNull final String modifierName,
-                 @NotNull final ImpexModifierValue[] modifierValues) {
+    TypeModifier(
+        @NotNull final String modifierName,
+        @NotNull final ImpexModifierValue[] modifierValues
+    ) {
         Validate.notEmpty(modifierName);
         Validate.notNull(modifierValues);
 

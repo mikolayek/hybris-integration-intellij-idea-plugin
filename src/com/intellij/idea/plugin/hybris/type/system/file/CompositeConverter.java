@@ -98,7 +98,12 @@ public class CompositeConverter<DOM> extends ResolvingConverter<DOM> {
     public static class AnyClassifier extends CompositeConverter<DomElement> {
 
         public AnyClassifier() {
-            super(new EnumTypeConverter(), new ItemTypeConverter(), new CollectionTypeConverter());
+            super(
+                new EnumTypeConverter(),
+                new ItemTypeConverter(),
+                new CollectionTypeConverter(),
+                new AtomicTypeConverter()
+            );
         }
 
     }

@@ -25,6 +25,7 @@ import com.intellij.idea.plugin.hybris.type.system.model.Relation;
 import com.intellij.idea.plugin.hybris.type.system.validation.TSRelationsValidation;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
@@ -128,7 +129,7 @@ public class DefaultTSRelationValidation implements TSRelationsValidation {
 
         final Map<String, PsiClass> filteredClasses = new HashMap<>();
 
-        if (org.apache.commons.collections.CollectionUtils.isEmpty(relationsList)) {
+        if (CollectionUtils.isEmpty(relationsList)) {
             return filteredClasses;
         }
 

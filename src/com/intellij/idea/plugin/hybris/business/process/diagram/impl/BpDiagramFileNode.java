@@ -19,16 +19,16 @@
 package com.intellij.idea.plugin.hybris.business.process.diagram.impl;
 
 import com.intellij.diagram.DiagramNodeBase;
-import com.intellij.idea.plugin.hybris.business.process.jaxb.Action;
-import com.intellij.idea.plugin.hybris.business.process.diagram.BpDiagramProvider;
 import com.intellij.idea.plugin.hybris.business.process.common.BpGraphNode;
+import com.intellij.idea.plugin.hybris.business.process.diagram.BpDiagramProvider;
+import com.intellij.idea.plugin.hybris.business.process.jaxb.Action;
 import com.intellij.idea.plugin.hybris.business.process.jaxb.End;
 import com.intellij.idea.plugin.hybris.business.process.jaxb.Join;
 import com.intellij.idea.plugin.hybris.business.process.jaxb.Notify;
 import com.intellij.idea.plugin.hybris.business.process.jaxb.ScriptAction;
 import com.intellij.idea.plugin.hybris.business.process.jaxb.Split;
 import com.intellij.idea.plugin.hybris.business.process.jaxb.Wait;
-import com.intellij.idea.plugin.hybris.business.process.jaxb.model.*;
+import com.intellij.idea.plugin.hybris.business.process.jaxb.model.BpGenericAction;
 import com.intellij.idea.plugin.hybris.common.utils.HybrisIcons;
 import com.intellij.openapi.components.ServiceManager;
 import org.jetbrains.annotations.NotNull;

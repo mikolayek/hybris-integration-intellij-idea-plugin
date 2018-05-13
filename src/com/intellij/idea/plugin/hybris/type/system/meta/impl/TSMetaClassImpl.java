@@ -24,13 +24,16 @@ import com.intellij.idea.plugin.hybris.type.system.meta.TSMetaReference;
 import com.intellij.idea.plugin.hybris.type.system.meta.impl.CaseInsensitive.NoCaseMultiMap;
 import com.intellij.idea.plugin.hybris.type.system.model.Attribute;
 import com.intellij.idea.plugin.hybris.type.system.model.ItemType;
-import com.intellij.util.containers.HashSet;
+import com.intellij.util.xml.DomAnchor;
+import com.intellij.util.xml.DomService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -44,7 +47,7 @@ class TSMetaClassImpl extends TSMetaEntityImpl<ItemType> implements TSMetaClass 
 
     private final NoCaseMultiMap<TSMetaPropertyImpl> myProperties = new NoCaseMultiMap<>();
 
-    private final Set<ItemType> myAllDoms = new LinkedHashSet<>();
+    private final Set<DomAnchor<ItemType>> myAllDoms = new LinkedHashSet<>();
 
     private final TSMetaModelImpl myMetaModel;
 
@@ -57,12 +60,12 @@ class TSMetaClassImpl extends TSMetaEntityImpl<ItemType> implements TSMetaClass 
     ) {
         super(name, dom);
         myMetaModel = model;
-        myAllDoms.add(dom);
+        myAllDoms.add(DomService.getInstance().createAnchor(dom));
         registerExtends(dom);
     }
 
     public void addDomRepresentation(final @NotNull ItemType anotherDom) {
-        myAllDoms.add(anotherDom);
+        myAllDoms.add(DomService.getInstance().createAnchor(anotherDom));
         registerExtends(anotherDom);
     }
 
@@ -75,20 +78,21 @@ class TSMetaClassImpl extends TSMetaEntityImpl<ItemType> implements TSMetaClass 
 
     @NotNull
     @Override
-    public Stream<? extends ItemType> getAllDomsStream() {
-        return myAllDoms.stream();
+    public Stream<? extends ItemType> retrieveAllDomsStream() {
+        return myAllDoms.stream().map(DomAnchor::retrieveDomElement).filter(Objects::nonNull);
     }
 
+    @Override
     @NotNull
-    TSMetaModelImpl getMetaModel() {
+    public TSMetaModelImpl getMetaModel() {
         return myMetaModel;
     }
 
-    @NotNull
-    TSMetaPropertyImpl createProperty(final @NotNull Attribute domAttribute) {
+    void createProperty(final @NotNull Attribute domAttribute) {
         final TSMetaPropertyImpl result = new TSMetaPropertyImpl(this, domAttribute);
-        myProperties.putValue(result.getName(), result);
-        return result;
+        if (result.getName() != null) {
+            myProperties.putValue(result.getName(), result);
+        }
     }
 
     @NotNull

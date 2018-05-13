@@ -28,6 +28,12 @@ public class ImpexParameterImpl extends ASTWrapperPsiElement implements ImpexPar
 
   @Override
   @NotNull
+  public List<ImpexMacroUsageDec> getMacroUsageDecList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, ImpexMacroUsageDec.class);
+  }
+
+  @Override
+  @NotNull
   public List<ImpexModifiers> getModifiersList() {
     return PsiTreeUtil.getChildrenOfTypeAsList(this, ImpexModifiers.class);
   }

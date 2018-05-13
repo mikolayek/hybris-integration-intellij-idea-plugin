@@ -20,6 +20,8 @@ public interface ImpexTypes {
   IElementType HEADER_LINE = new ImpexElementType("HEADER_LINE");
   IElementType HEADER_TYPE_NAME = new ImpexElementType("HEADER_TYPE_NAME");
   IElementType MACRO_DECLARATION = new ImpexElementType("MACRO_DECLARATION");
+  IElementType MACRO_NAME_DEC = new ImpexElementType("MACRO_NAME_DEC");
+  IElementType MACRO_USAGE_DEC = new ImpexElementType("MACRO_USAGE_DEC");
   IElementType MODIFIERS = new ImpexElementType("MODIFIERS");
   IElementType PARAMETER = new ImpexElementType("PARAMETER");
   IElementType PARAMETERS = new ImpexElementType("PARAMETERS");
@@ -47,6 +49,7 @@ public interface ImpexTypes {
   IElementType DEFAULT_PATH_DELIMITER = new ImpexTokenType("DEFAULT_PATH_DELIMITER");
   IElementType DIGIT = new ImpexTokenType("DIGIT");
   IElementType DOCUMENT_ID = new ImpexTokenType("DOCUMENT_ID");
+  IElementType DOT = new ImpexTokenType("DOT");
   IElementType DOUBLE_STRING = new ImpexTokenType("DOUBLE_STRING");
   IElementType FIELD_LIST_ITEM_SEPARATOR = new ImpexTokenType("FIELD_LIST_ITEM_SEPARATOR");
   IElementType FIELD_VALUE = new ImpexTokenType("FIELD_VALUE");
@@ -108,6 +111,12 @@ public interface ImpexTypes {
       }
       else if (type == MACRO_DECLARATION) {
         return new ImpexMacroDeclarationImpl(node);
+      }
+      else if (type == MACRO_NAME_DEC) {
+        return new ImpexMacroNameDecImpl(node);
+      }
+      else if (type == MACRO_USAGE_DEC) {
+        return new ImpexMacroUsageDecImpl(node);
       }
       else if (type == MODIFIERS) {
         return new ImpexModifiersImpl(node);

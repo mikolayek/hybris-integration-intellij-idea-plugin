@@ -24,17 +24,16 @@ import com.intellij.facet.FacetType;
 import com.intellij.facet.FacetTypeRegistry;
 import com.intellij.facet.ModifiableFacetModel;
 import com.intellij.idea.plugin.hybris.common.HybrisConstants;
+import com.intellij.idea.plugin.hybris.project.configurators.FacetConfigurator;
 import com.intellij.idea.plugin.hybris.project.descriptors.HybrisModuleDescriptor;
 import com.intellij.javaee.DeploymentDescriptorsConstants;
 import com.intellij.javaee.web.facet.WebFacet;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.roots.ModifiableRootModel;
-import com.intellij.openapi.roots.ModuleRootModel;
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -44,18 +43,16 @@ import java.io.File;
  *
  * @author Alexander Bartash <AlexanderBartash@gmail.com>
  */
-public class WebFacetConfigurator extends AbstractFacetConfigurator {
+public class WebFacetConfigurator implements FacetConfigurator {
+
 
     @Override
-    protected void configureInner(@NotNull final ModifiableFacetModel modifiableFacetModel,
-                                  @NotNull final HybrisModuleDescriptor moduleDescriptor,
-                                  @NotNull final Module javaModule,
-                                  @NotNull final ModifiableRootModel modifiableRootModel) {
-        Validate.notNull(javaModule);
-        Validate.notNull(modifiableFacetModel);
-        Validate.notNull(moduleDescriptor);
-        Validate.notNull(modifiableFacetModel);
-
+    public void configure(
+        @NotNull final ModifiableFacetModel modifiableFacetModel,
+        @NotNull final HybrisModuleDescriptor moduleDescriptor,
+        @NotNull final Module javaModule,
+        @NotNull final ModifiableRootModel modifiableRootModel
+    ) {
         final File webRoot = moduleDescriptor.getWebRoot();
         if (null == webRoot) {
             return;
@@ -85,16 +82,15 @@ public class WebFacetConfigurator extends AbstractFacetConfigurator {
             );
         }
 
-        this.setupFacetSourceRoots(webFacet, modifiableRootModel);
-        this.setupFacetWebRoot(webFacet, webRoot);
+        webFacet.setWebSourceRoots(modifiableRootModel.getSourceRootUrls(false));
+        webFacet.addWebRootNoFire(VfsUtil.pathToUrl(FileUtil.toSystemIndependentName(webRoot.getAbsolutePath())), "/");
         this.setupFacetDeploymentDescriptor(webFacet, moduleDescriptor);
     }
 
-    protected void setupFacetDeploymentDescriptor(@NotNull final WebFacet webFacet,
-                                                  @NotNull final HybrisModuleDescriptor moduleDescriptor) {
-        Validate.notNull(webFacet);
-        Validate.notNull(moduleDescriptor);
-
+    private void setupFacetDeploymentDescriptor(
+        @NotNull final WebFacet webFacet,
+        @NotNull final HybrisModuleDescriptor moduleDescriptor
+    ) {
         final VirtualFile fileByIoFile = VfsUtil.findFileByIoFile(
             new File(moduleDescriptor.getRootDirectory(), HybrisConstants.WEB_XML_DIRECTORY_RELATIVE_PATH), true
         );
@@ -106,26 +102,4 @@ public class WebFacetConfigurator extends AbstractFacetConfigurator {
         }
     }
 
-    protected void setupFacetWebRoot(@NotNull final WebFacet webFacet, @NotNull final File webRoot) {
-        Validate.notNull(webFacet);
-        Validate.notNull(webRoot);
-
-        final VirtualFile moduleRootVf = VfsUtil.findFileByIoFile(webRoot, true);
-        if (null != moduleRootVf) {
-            webFacet.addWebRoot(moduleRootVf, "/");
-        }
-    }
-
-    public void setupFacetSourceRoots(@NotNull final WebFacet facet, @NotNull final ModuleRootModel model) {
-        Validate.notNull(facet);
-        Validate.notNull(model);
-
-        final String[] sourceRootUrls = model.getSourceRootUrls(false);
-
-        if (ArrayUtils.isNotEmpty(sourceRootUrls)) {
-            for (String sourceRootUrl : sourceRootUrls) {
-                facet.addWebSourceRoot(sourceRootUrl);
-            }
-        }
-    }
 }

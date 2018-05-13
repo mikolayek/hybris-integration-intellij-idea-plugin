@@ -8,6 +8,9 @@ import com.intellij.psi.PsiElement;
 public interface ImpexParameter extends PsiElement {
 
   @NotNull
+  List<ImpexMacroUsageDec> getMacroUsageDecList();
+
+  @NotNull
   List<ImpexModifiers> getModifiersList();
 
   @Nullable

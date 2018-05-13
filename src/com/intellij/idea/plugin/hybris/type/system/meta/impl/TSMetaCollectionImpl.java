@@ -25,6 +25,8 @@ import com.intellij.util.xml.DomElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 public class TSMetaCollectionImpl extends TSMetaEntityImpl<CollectionType> implements TSMetaCollection {
 
     private final TSMetaModelImpl myMetaModel;
@@ -39,10 +41,13 @@ public class TSMetaCollectionImpl extends TSMetaEntityImpl<CollectionType> imple
         return dom.getCode().getValue();
     }
 
+
     @Nullable
     @Override
     public String getElementTypeName() {
-        return getDom().getElementType().getValue();
+        return Optional.ofNullable(retrieveDom())
+                       .map(dom -> dom.getElementType().getValue())
+                       .orElse(null);
     }
 
     @Nullable

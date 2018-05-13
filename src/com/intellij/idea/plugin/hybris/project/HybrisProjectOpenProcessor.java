@@ -19,8 +19,8 @@
 package com.intellij.idea.plugin.hybris.project;
 
 import com.intellij.ide.util.projectWizard.WizardContext;
-import com.intellij.idea.plugin.hybris.project.descriptors.HybrisModuleDescriptor;
 import com.intellij.idea.plugin.hybris.common.HybrisConstants;
+import com.intellij.idea.plugin.hybris.project.descriptors.HybrisModuleDescriptor;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.vfs.VfsUtil;
@@ -45,6 +45,7 @@ public class HybrisProjectOpenProcessor extends ProjectOpenProcessorBase<Default
 
     @Override
     public boolean doQuickImport(final VirtualFile file, final WizardContext wizardContext) {
+        this.getBuilder().cleanup();
         this.getBuilder().setRootProjectDirectory(VfsUtil.virtualToIoFile(file.getParent()));
 
         final List<HybrisModuleDescriptor> projects = this.getBuilder().getList();

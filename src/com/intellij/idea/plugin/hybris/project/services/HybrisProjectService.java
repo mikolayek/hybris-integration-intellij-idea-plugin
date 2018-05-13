@@ -18,6 +18,7 @@
 
 package com.intellij.idea.plugin.hybris.project.services;
 
+import com.intellij.idea.plugin.hybris.project.descriptors.HybrisProjectDescriptor;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -37,7 +38,13 @@ public interface HybrisProjectService {
 
     boolean isCoreExtModule(@NotNull File file);
 
-    boolean isRegularModule(@NotNull File file);
+    boolean isHybrisModule(@NotNull File file);
 
-    boolean isOutOfTheBoxModule(@NotNull File file);
+    boolean isOutOfTheBoxModule(@NotNull File file, @NotNull HybrisProjectDescriptor rootProjectDescriptor);
+
+    boolean isMavenModule(File rootProjectDirectory);
+
+    boolean isEclipseModule(File rootProjectDirectory);
+
+    boolean isGradleModule(File file);
 }

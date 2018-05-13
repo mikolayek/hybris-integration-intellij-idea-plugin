@@ -28,12 +28,14 @@ import com.intellij.idea.plugin.hybris.impex.psi.ImpexTypes;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.psi.TokenType;
+import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.formatter.common.AbstractBlock;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created 22:21 21 December 2014
@@ -43,15 +45,19 @@ import java.util.List;
 public class ImpexBlock extends AbstractBlock {
 
     private final SpacingBuilder spacingBuilder;
+    private final CodeStyleSettings codeStyleSettings;
 
-    protected ImpexBlock(@NotNull final ASTNode node,
-                         @Nullable final Wrap wrap,
-                         @Nullable final Alignment alignment,
-                         @NotNull final SpacingBuilder spacingBuilder) {
-
+    public ImpexBlock(
+        @NotNull final ASTNode node,
+        @Nullable final Wrap wrap,
+        @Nullable final Alignment alignment,
+        @NotNull final SpacingBuilder spacingBuilder,
+        @NotNull final CodeStyleSettings codeStyleSettings
+    ) {
         super(node, wrap, alignment);
 
         this.spacingBuilder = spacingBuilder;
+        this.codeStyleSettings = codeStyleSettings;
     }
 
     @Override
@@ -64,47 +70,50 @@ public class ImpexBlock extends AbstractBlock {
         ASTNode currentNode = myNode.getFirstChildNode();
 
         while (null != currentNode) {
-
-            // Unpack 'Value Line' as columns will not be aligned if they do not share the same parent
-            if (ImpexTypes.VALUE_LINE == currentNode.getElementType()) {
-                currentNode = currentNode.getFirstChildNode();
-            }
-
             alignmentStrategy.processNode(currentNode);
 
-            if (isNotWhitespaceOrNewLine(currentNode)) {
+            if (isNotWhitespaceOrNewLine(currentNode)
+                && !isCurrentNodeHasParentValue(currentNode)) {
 
                 final Block block = new ImpexBlock(
-                        currentNode,
-                        null,
-                        alignmentStrategy.getAlignment(currentNode),
-                        spacingBuilder);
+                    currentNode,
+                    null,
+                    alignmentStrategy.getAlignment(currentNode),
+                    spacingBuilder,
+                    codeStyleSettings
+
+                );
 
                 blocks.add(block);
             }
 
-            // Unpack Value Line
-            if (isEndOfValueLine(currentNode)) {
-                currentNode = currentNode.getTreeParent().getTreeNext();
-            } else {
-                currentNode = currentNode.getTreeNext();
-            }
+            currentNode = currentNode.getTreeNext();
         }
 
         return blocks;
     }
 
-    private boolean isEndOfValueLine(final ASTNode currentNode) {
-        return null == currentNode.getTreeNext() && ImpexTypes.VALUE_LINE == currentNode.getTreeParent().getElementType();
-    }
-
+    @NotNull
     private AlignmentStrategy getAlignmentStrategy() {
-        return ServiceManager.getService(AlignmentStrategy.class);
+        final ImpexCodeStyleSettings impexCodeStyleSettings = this.codeStyleSettings.getCustomSettings(
+            ImpexCodeStyleSettings.class
+        );
+
+        if (impexCodeStyleSettings.TABLIFY) {
+
+            return ServiceManager.getService(TableAlignmentStrategy.class);
+        }
+
+        return ServiceManager.getService(ColumnsAlignmentStrategy.class);
     }
 
     private boolean isNotWhitespaceOrNewLine(final ASTNode currentNode) {
         return TokenType.WHITE_SPACE != currentNode.getElementType()
                && ImpexTypes.CRLF != currentNode.getElementType();
+    }
+
+    private boolean isCurrentNodeHasParentValue(final @NotNull ASTNode currentNode) {
+        return Objects.equals(currentNode.getTreeParent().getElementType(), ImpexTypes.VALUE);
     }
 
     @Override

@@ -18,9 +18,11 @@
 
 package com.intellij.idea.plugin.hybris.project.components;
 
+import com.intellij.openapi.Disposable;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.project.ProjectManager;
-import com.intellij.openapi.project.ProjectManagerListener;
+import com.intellij.openapi.util.Disposer;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -28,16 +30,24 @@ import org.jetbrains.annotations.NotNull;
  */
 public class HybrisProjectApplicationComponent implements ApplicationComponent {
 
-    private ProjectManagerListener projectManagerListener = new HybrisProjectManagerListener();
+    private HybrisProjectManagerListener projectManagerListener = new HybrisProjectManagerListener();
+    private Disposable disposable;
 
     @Override
     public void initComponent() {
-        ProjectManager.getInstance().addProjectManagerListener(this.projectManagerListener);
+        disposable = Disposer.newDisposable();
+        Disposer.register(disposable, projectManagerListener);
+
+        ApplicationManager.getApplication().getMessageBus().connect(disposable).subscribe(
+            ProjectManager.TOPIC,
+            projectManagerListener
+        );
     }
 
     @Override
     public void disposeComponent() {
-        ProjectManager.getInstance().removeProjectManagerListener(this.projectManagerListener);
+        Disposer.dispose(disposable);
+        disposable = null;
     }
 
     @NotNull

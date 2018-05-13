@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ This file is part of "hybris integration" plugin for Intellij IDEA.
+  ~ Copyright (C) 2014-2016 Alexander Bartash <AlexanderBartash@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU Lesser General Public License as
+  ~ published by the Free Software Foundation, either version 3 of the
+  ~ License, or (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public License
+  ~ along with this program. If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<idea-plugin xmlns:xi="http://www.w3.org/2001/XInclude">
+
+    <xi:include href="/META-INF/plugin-release-info.xml" xpointer="xpointer(/idea-plugin/*)"/>
+
+    <depends>com.intellij.modules.lang</depends>
+
+    <depends optional="true" config-file="ant-support-optional-dependencies.xml">AntSupport</depends>
+    <depends optional="true" config-file="junit-optional-dependencies.xml">JUnit</depends>
+    <depends optional="true" config-file="maven-support-optional-dependencies.xml">org.jetbrains.idea.maven</depends>
+    <depends optional="true" config-file="eclipse-support-optional-dependencies.xml">org.jetbrains.idea.eclipse</depends>
+    <depends optional="true" config-file="gradle-support-optional-dependencies.xml">org.jetbrains.plugins.gradle</depends>
+    <depends optional="true" config-file="lang-optional-dependencies.xml">com.intellij.modules.lang</depends>
+    <depends optional="true" config-file="spring-optional-dependencies.xml">com.intellij.spring</depends>
+    <depends optional="true" config-file="javaee-optional-dependencies.xml">com.intellij.javaee</depends>
+    <depends optional="true" config-file="java-optional-dependencies.xml">com.intellij.modules.java</depends>
+    <depends optional="true" config-file="diagram-optional-dependencies.xml">com.intellij.diagram</depends>
+    <depends optional="true" config-file="properties-optional-dependencies.xml">com.intellij.properties</depends>
+    <depends optional="true" config-file="groovy-optional-dependencies.xml">org.intellij.groovy</depends>
+
+    <xi:include href="/META-INF/plugin-internal.xml" xpointer="xpointer(/idea-plugin/*)"/>
+    <xi:include href="/META-INF/plugin-community.xml" xpointer="xpointer(/idea-plugin/*)"/>
+    <xi:include href="/META-INF/plugin-extensions.xml" xpointer="xpointer(/idea-plugin/*)"/>
+
+</idea-plugin>

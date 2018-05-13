@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ This file is part of "hybris integration" plugin for Intellij IDEA.
+  ~ Copyright (C) 2014-2016 Alexander Bartash <AlexanderBartash@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU Lesser General Public License as
+  ~ published by the Free Software Foundation, either version 3 of the
+  ~ License, or (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public License
+  ~ along with this program. If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <title>java</title>
+  <g>
+    <title>background</title>
+    <rect fill="none" id="canvas_background" height="34" width="34" y="-1" x="-1"/>
+  </g>
+  <g transform="matrix(1.006098, 0, 0, 1.00568, -0.321773, -0.090987)">
+    <title>Layer 1</title>
+    <g stroke="null" id="svg_1">
+      <g stroke="null" id="svg_2">
+        <polygon stroke="null" id="svg_3" opacity="0.7" fill="#9aa7b0" points="12.3353 0.101233 4.42663 8.0602 12.3353 8.0602 12.3353 0.101233"/>
+        <rect stroke="null" id="svg_4" opacity="0.4" fill="#ff0000" height="13.928196" width="29.657685" y="18.008915" x="2.449449"/>
+        <polygon stroke="null" id="svg_5" opacity="0.7" fill="#9aa7b0" points="14.3125 0.101233 14.3125 8.0602 14.3125 10.0499 12.3353 10.0499 4.42663 10.0499 4.42663 16.0192 26.1756 16.0192 26.1756 0.101233 14.3125 0.101233"/>
+      </g>
+      <text stroke="null" transform="matrix(1.97718 0 0 1.98974 -31.4041 -31.4852)" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="24" id="svg_8" y="28.843309" x="21.778444" fill-opacity="null" stroke-opacity="null" stroke-width="0" fill="#000000" style="white-space: pre;"/>
+    </g>
+  </g>
+  <path d="M 5.583 20.373 L 7.168 20.373 L 7.168 29.816 L 5.583 29.816 L 5.583 20.373 Z" opacity="0.7" style="fill: rgb(35, 31, 32);"/>
+  <path opacity="0.7" d="M 9.215 20.359 L 10.907 20.359 L 12.685 23.249 L 13.653 24.825 L 16.399 20.359 L 18.09 20.359 L 18.09 29.802 L 16.503 29.802 L 16.503 23.032 L 13.653 27.483 L 13.601 27.483 L 11.234 23.771 L 10.778 23.058 L 10.778 26.178 L 10.778 29.802 L 9.215 29.802 L 9.215 20.359 Z" fill="#231f20"/>
+  <path opacity="0.7" d="M 28.288 20.383 L 25.196 24.996 L 28.413 29.827 L 26.578 29.827 L 24.233 26.226 L 21.901 29.827 L 20.115 29.827 L 23.32 25.024 L 20.242 20.383 L 22.08 20.383 L 24.284 23.81 L 26.499 20.383 L 28.288 20.383 Z" fill="#231f20"/>
+</svg>

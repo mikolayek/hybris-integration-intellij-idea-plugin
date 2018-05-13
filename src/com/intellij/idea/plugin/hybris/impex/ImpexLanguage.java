@@ -21,6 +21,7 @@ package com.intellij.idea.plugin.hybris.impex;
 import com.intellij.lang.Language;
 
 public class ImpexLanguage extends Language {
+
     private static final ImpexLanguage INSTANCE = new ImpexLanguage();
 
     public static ImpexLanguage getInstance() {

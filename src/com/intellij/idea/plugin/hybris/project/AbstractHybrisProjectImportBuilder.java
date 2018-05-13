@@ -18,12 +18,13 @@
 
 package com.intellij.idea.plugin.hybris.project;
 
-import com.intellij.idea.plugin.hybris.project.descriptors.HybrisProjectDescriptor;
 import com.intellij.idea.plugin.hybris.project.descriptors.HybrisModuleDescriptor;
+import com.intellij.idea.plugin.hybris.project.descriptors.HybrisProjectDescriptor;
 import com.intellij.projectImport.ProjectImportBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * Created 5:20 PM 13 June 2015.
@@ -37,4 +38,15 @@ public abstract class AbstractHybrisProjectImportBuilder extends ProjectImportBu
     @NotNull
     public abstract HybrisProjectDescriptor getHybrisProjectDescriptor();
 
+    public abstract void setAllModuleList();
+
+    public abstract void setCoreStepModuleList();
+
+    public abstract void setExternalStepModuleList();
+
+    public abstract void setHybrisModulesToImport(final List<HybrisModuleDescriptor> hybrisModules);
+
+    public abstract List<HybrisModuleDescriptor> getHybrisModulesToImport();
+
+    public abstract void setRefresh(boolean refresh);
 }

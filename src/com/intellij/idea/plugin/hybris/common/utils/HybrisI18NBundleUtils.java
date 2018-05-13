@@ -38,8 +38,10 @@ public final class HybrisI18NBundleUtils extends AbstractBundle {
     }
 
     @NotNull
-    public static String message(@NotNull @PropertyKey(resourceBundle = PATH_TO_BUNDLE) final String key,
-                                 @NotNull final Object... params) {
+    public static String message(
+        @NotNull @PropertyKey(resourceBundle = PATH_TO_BUNDLE) final String key,
+        @NotNull final Object... params
+    ) {
         final String message = BUNDLE.getMessage(key, params);
 
         return (null == message) ? "" : message;

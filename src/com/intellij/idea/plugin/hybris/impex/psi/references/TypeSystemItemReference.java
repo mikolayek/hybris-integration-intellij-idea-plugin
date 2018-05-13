@@ -19,11 +19,13 @@
 package com.intellij.idea.plugin.hybris.impex.psi.references;
 
 import com.intellij.idea.plugin.hybris.impex.psi.ImpexHeaderTypeName;
+import com.intellij.idea.plugin.hybris.psi.references.TypeSystemReferenceBase;
 import com.intellij.idea.plugin.hybris.type.system.meta.TSMetaClass;
 import com.intellij.idea.plugin.hybris.type.system.meta.TSMetaModel;
 import com.intellij.idea.plugin.hybris.type.system.model.ItemType;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.ResolveResult;
+import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.GenericAttributeValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -46,13 +48,13 @@ class TypeSystemItemReference extends TypeSystemReferenceBase<ImpexHeaderTypeNam
         final TSMetaModel meta = getTypeSystemMeta();
         final String lookingForName = getElement().getText();
         return Optional.ofNullable(meta.findMetaClassByName(lookingForName))
-                       .map(TSMetaClass::getAllDomsStream)
+                       .map(TSMetaClass::retrieveAllDomsStream)
                        .orElse(Stream.empty())
                        .map(ItemTypeResolveResult::new)
                        .toArray(ResolveResult[]::new);
     }
 
-    private static class ItemTypeResolveResult implements ResolveResult {
+    private static class ItemTypeResolveResult implements TypeSystemResolveResult {
 
         private final ItemType myDomItemType;
 
@@ -65,6 +67,12 @@ class TypeSystemItemReference extends TypeSystemReferenceBase<ImpexHeaderTypeNam
         public PsiElement getElement() {
             final GenericAttributeValue<String> codeAttr = myDomItemType.getCode();
             return codeAttr == null ? null : codeAttr.getXmlAttributeValue();
+        }
+
+        @NotNull
+        @Override
+        public DomElement getSemanticDomElement() {
+            return myDomItemType;
         }
 
         @Override

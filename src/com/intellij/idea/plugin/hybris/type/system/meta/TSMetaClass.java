@@ -30,8 +30,13 @@ import java.util.stream.Stream;
  */
 public interface TSMetaClass extends TSMetaClassifier<ItemType> {
 
+    String IMPLICIT_SUPER_CLASS_NAME = "GenericItem";
+
     @Nullable
     String getExtendedMetaClassName();
+
+    @NotNull
+    TSMetaModel getMetaModel();
 
     @NotNull
     Stream<? extends TSMetaProperty> getPropertiesStream(boolean includeInherited);
@@ -49,6 +54,6 @@ public interface TSMetaClass extends TSMetaClassifier<ItemType> {
     Stream<? extends TSMetaReference.ReferenceEnd> getReferenceEndsStream(boolean includeInherited);
 
     @NotNull
-    Stream<? extends ItemType> getAllDomsStream();
+    Stream<? extends ItemType> retrieveAllDomsStream();
 
 }

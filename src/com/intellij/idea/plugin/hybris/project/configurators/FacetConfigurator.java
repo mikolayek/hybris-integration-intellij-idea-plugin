@@ -21,7 +21,6 @@ package com.intellij.idea.plugin.hybris.project.configurators;
 import com.intellij.facet.ModifiableFacetModel;
 import com.intellij.idea.plugin.hybris.project.descriptors.HybrisModuleDescriptor;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.roots.ModifiableModelsProvider;
 import com.intellij.openapi.roots.ModifiableRootModel;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,10 +29,11 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface FacetConfigurator {
 
-    void configure(@NotNull ModifiableFacetModel modifiableFacetModel,
-                   @NotNull HybrisModuleDescriptor moduleDescriptor,
-                   @NotNull Module javaModule,
-                   @NotNull ModifiableRootModel modifiableRootModel,
-                   @NotNull ModifiableModelsProvider modifiableModelsProvider);
+    void configure(
+        @NotNull ModifiableFacetModel modifiableFacetModel,
+        @NotNull HybrisModuleDescriptor moduleDescriptor,
+        @NotNull Module javaModule,
+        @NotNull ModifiableRootModel modifiableRootModel
+    );
 
 }

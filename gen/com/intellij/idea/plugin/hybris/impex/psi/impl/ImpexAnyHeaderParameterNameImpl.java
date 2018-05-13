@@ -26,4 +26,10 @@ public class ImpexAnyHeaderParameterNameImpl extends ImpexAnyHeaderParameterName
     else super.accept(visitor);
   }
 
+  @Override
+  @Nullable
+  public ImpexMacroUsageDec getMacroUsageDec() {
+    return findChildByClass(ImpexMacroUsageDec.class);
+  }
+
 }

@@ -22,19 +22,11 @@ import com.intellij.codeInspection.InspectionManager;
 import com.intellij.codeInspection.LocalInspectionTool;
 import com.intellij.codeInspection.ProblemDescriptor;
 import com.intellij.codeInspection.ProblemHighlightType;
-import com.intellij.idea.plugin.hybris.common.HybrisConstants;
-import com.intellij.idea.plugin.hybris.common.services.CommonIdeaService;
-import com.intellij.idea.plugin.hybris.project.descriptors.HybrisModuleDescriptor.DescriptorType;
 import com.intellij.idea.plugin.hybris.type.system.utils.TypeSystemUtils;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleUtilCore;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiFileSystemItem;
 import com.intellij.psi.xml.XmlFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -43,14 +35,12 @@ import org.w3c.dom.NodeList;
 
 import javax.xml.xpath.XPathExpressionException;
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static com.intellij.openapi.util.io.FileUtil.normalize;
 import static com.intellij.idea.plugin.hybris.common.HybrisConstants.RULESET_XML;
 
 public class XmlRuleInspection extends LocalInspectionTool {
@@ -71,7 +61,7 @@ public class XmlRuleInspection extends LocalInspectionTool {
         }
         final XmlFile xmlFile = (XmlFile) file;
 
-        if (!this.shouldCheckFile(file)) {
+        if (!TypeSystemValidationUtils.isCustomExtensionFile(file)) {
             return null;
         }
 
@@ -90,41 +80,6 @@ public class XmlRuleInspection extends LocalInspectionTool {
         }
 
         return result.toArray(new ProblemDescriptor[result.size()]);
-    }
-
-    protected boolean shouldCheckFile(@NotNull final PsiFileSystemItem file) {
-        if (file.getVirtualFile() == null) {
-            return false;
-        }
-
-        final Module module = ModuleUtilCore.findModuleForPsiElement(file);
-        final String descriptorTypeName = module.getOptionValue(HybrisConstants.DESCRIPTOR_TYPE);
-
-        if (descriptorTypeName == null) {
-            if (shouldCheckFilesWithoutHybrisSettings(file.getProject())) {
-                return estimateIsCustomExtension(file);
-            }
-            return false;
-        }
-
-        final DescriptorType descriptorType = DescriptorType.valueOf(descriptorTypeName);
-        return descriptorType == DescriptorType.CUSTOM;
-    }
-
-    /*
-     * This method disqualifies known hybris extensions. Anything else is considered for TSV validation.
-     */
-    private boolean estimateIsCustomExtension(final PsiFileSystemItem file) {
-        final File itemsfile = VfsUtilCore.virtualToIoFile(file.getVirtualFile());
-        final String itemsfilePath = normalize(itemsfile.getAbsolutePath());
-
-        if (itemsfilePath.contains(normalize(HybrisConstants.HYBRIS_OOTB_MODULE_PREFIX))) {
-            return false;
-        }
-        if (itemsfilePath.contains(normalize(HybrisConstants.PLATFORM_EXT_MODULE_PREFIX))) {
-            return false;
-        }
-        return true;
     }
 
     @NotNull
@@ -151,8 +106,10 @@ public class XmlRuleInspection extends LocalInspectionTool {
         final NodeList selection = xPathService.computeNodeSet(rule.getSelectionXPath(), context.getDocument());
         for (int i = 0; i < selection.getLength(); i++) {
             final Node nextSelected = selection.item(i);
-            //noinspection BooleanVariableAlwaysNegated
-            final boolean passed = xPathService.computeBoolean(rule.getTestXPath(), nextSelected);
+            boolean passed = xPathService.computeBoolean(rule.getTestXPath(), nextSelected);
+            if (rule.isFailOnTestQuery()) {
+                passed = !passed;
+            }
             if (!passed) {
                 output.add(this.createProblem(context, nextSelected, rule));
             }
@@ -173,12 +130,6 @@ public class XmlRuleInspection extends LocalInspectionTool {
             ProblemHighlightType.GENERIC_ERROR,
             context.isOnTheFly()
         );
-    }
-
-    protected boolean shouldCheckFilesWithoutHybrisSettings(@NotNull final Project project) {
-        // at least it needs to have hybris flag
-        final CommonIdeaService commonIdeaService = ServiceManager.getService(CommonIdeaService.class);
-        return commonIdeaService.isHybrisProject(project);
     }
 
     private XmlRule[] loadRules() throws IOException {

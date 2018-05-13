@@ -18,22 +18,36 @@
 
 package com.intellij.idea.plugin.hybris.common.services.impl;
 
+import com.intellij.idea.plugin.hybris.common.HybrisConstants;
 import com.intellij.idea.plugin.hybris.common.services.CommonIdeaService;
+import com.intellij.idea.plugin.hybris.project.descriptors.HybrisProjectDescriptor;
+import com.intellij.idea.plugin.hybris.project.descriptors.PlatformHybrisModuleDescriptor;
+import com.intellij.idea.plugin.hybris.settings.HybrisApplicationSettings;
+import com.intellij.idea.plugin.hybris.settings.HybrisApplicationSettingsComponent;
 import com.intellij.idea.plugin.hybris.settings.HybrisProjectSettings;
 import com.intellij.idea.plugin.hybris.settings.HybrisProjectSettingsComponent;
+import com.intellij.idea.plugin.hybris.statistics.StatsCollector;
 import com.intellij.openapi.command.CommandProcessor;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.EditorBundle;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.ui.LicensingFacade;
+import com.intellij.util.PlatformUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 /**
@@ -42,8 +56,8 @@ import java.util.stream.Collectors;
  * @author Alexander Bartash <AlexanderBartash@gmail.com>
  */
 public class DefaultCommonIdeaService implements CommonIdeaService {
-
-    protected final CommandProcessor commandProcessor;
+    private static final Logger LOG = Logger.getInstance(DefaultCommonIdeaService.class);
+    private final CommandProcessor commandProcessor;
 
     public DefaultCommonIdeaService(@NotNull final CommandProcessor commandProcessor) {
         Validate.notNull(commandProcessor);
@@ -80,7 +94,7 @@ public class DefaultCommonIdeaService implements CommonIdeaService {
 
     @Override
     public boolean isHybrisProject(@NotNull final Project project) {
-        return HybrisProjectSettingsComponent.getInstance(project).getState().isHybisProject();
+        return HybrisProjectSettingsComponent.getInstance(project).getState().isHybrisProject();
     }
 
     @Override
@@ -92,13 +106,16 @@ public class DefaultCommonIdeaService implements CommonIdeaService {
             return true;
         }
         final String[] versionParts = version.split("\\.");
-        if (versionParts.length != 2) {
+        if (versionParts.length < 2) {
             return true;
         }
         final String majorVersion = versionParts[0];
+        final String minorVersion = versionParts[1];
         try {
-            final int majorVersionNumber = Integer.valueOf(majorVersion);
-            return majorVersionNumber < 5;
+            final int majorVersionNumber = Integer.parseInt(majorVersion);
+            final int minorVersionNumber = Integer.parseInt(minorVersion);
+            final int versionNumber = majorVersionNumber * 10 + minorVersionNumber;
+            return versionNumber < 81;
         } catch (NumberFormatException nfe) {
             return true;
         }
@@ -119,17 +136,103 @@ public class DefaultCommonIdeaService implements CommonIdeaService {
             return true;
         }
         final Collection<String> webservicesNames = Arrays.asList("*hmc", "hmc", "platform");
-        if (matchAllModuleNames(webservicesNames, moduleNames)) {
-            return true;
+        return matchAllModuleNames(webservicesNames, moduleNames);
+    }
+
+    @Override
+    public PlatformHybrisModuleDescriptor getPlatformDescriptor(final HybrisProjectDescriptor hybrisProjectDescriptor) {
+        return (PlatformHybrisModuleDescriptor) hybrisProjectDescriptor
+            .getFoundModules()
+            .stream()
+            .filter(e -> e instanceof PlatformHybrisModuleDescriptor)
+            .findAny()
+            .orElse(null);
+    }
+
+    @Override
+    public boolean shouldShowPermissionToSendStatisticsDialog() {
+        final HybrisApplicationSettings settings = HybrisApplicationSettingsComponent.getInstance().getState();
+        if (StatsCollector.getInstance().isOpenCollectiveContributor()) {
+            return !settings.isAllowedSendingPlainStatistics() && !settings.isDisallowedSendingStatistics();
         }
-        return false;
+        return !settings.isAllowedSendingPlainStatistics() && !settings.isDevelopmentMode();
+    }
+
+    @Override
+    public String getHostHacUrl(final Project project) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getHostUrl(project));
+        final Properties localProperties = getLocalProperties(project);
+        if (localProperties != null) {
+            final String hac = localProperties.getProperty(HybrisConstants.HAC_WEBROOT_KEY);
+            if (hac != null) {
+                sb.append("/");
+                sb.append(StringUtils.strip(hac, " /"));
+            }
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public String getHostUrl(final Project project) {
+        final HybrisProjectSettings settings = HybrisProjectSettingsComponent.getInstance(project).getState();
+        final String ip = settings.getHostIP();
+        StringBuilder sb = new StringBuilder();
+        sb.append(HybrisConstants.HTTPS_PROTOCOL);
+        sb.append(ip);
+
+        String port = settings.getPort();
+        if (port == null || port.isEmpty()) {
+            final Properties localProperties = getLocalProperties(project);
+            port = HybrisConstants.DEFAULT_TOMCAT_SSL_PORT;
+            if (localProperties != null) {
+                port = localProperties.getProperty(HybrisConstants.TOMCAT_SSL_PORT_KEY, HybrisConstants.DEFAULT_TOMCAT_SSL_PORT);
+            }
+        }
+        sb.append(HybrisConstants.URL_PORT_DELIMITER);
+        sb.append(port);
+
+        return sb.toString();
+    }
+
+    private Properties getLocalProperties(final Project project) {
+        final String configDir = HybrisProjectSettingsComponent.getInstance(project).getState().getConfigDirectory();
+        if (configDir == null) {
+            return null;
+        }
+        File propFile = new File(configDir, HybrisConstants.LOCAL_PROPERTIES);
+        if (!propFile.exists()) {
+            return null;
+        }
+        Properties prop = new Properties();
+        try (FileReader fr = new FileReader(propFile)) {
+            prop.load(fr);
+            return prop;
+        } catch (FileNotFoundException e) {
+            LOG.info(e.getMessage(), e);
+        } catch (IOException e) {
+            LOG.info(e.getMessage(), e);
+        }
+        return null;
+    }
+
+    @Override
+    public boolean isDiscountTargetGroup() {
+        LicensingFacade licensingFacade = LicensingFacade.getInstance();
+        return licensingFacade == null || licensingFacade.isEvaluationLicense() || PlatformUtils.isIdeaCommunity();
+    }
+
+    @Override
+    public boolean isFansTargetGroup() {
+        LicensingFacade licensingFacade = LicensingFacade.getInstance();
+        return licensingFacade != null && !licensingFacade.getLicensedToMessage().startsWith("Licensed to SAP");
     }
 
     private boolean matchAllModuleNames(
-        @NotNull final Collection<String> namePaterns,
+        @NotNull final Collection<String> namePatterns,
         @NotNull final Collection<String> moduleNames
     ) {
-        return namePaterns.stream()
+        return namePatterns.stream()
                           .allMatch(pattern -> matchModuleName(pattern, moduleNames));
     }
 
@@ -137,9 +240,6 @@ public class DefaultCommonIdeaService implements CommonIdeaService {
         String regex = ("\\Q" + pattern + "\\E").replace("*", "\\E.*\\Q");
         return moduleNames.stream()
                           .parallel()
-                          .filter(p -> p.matches(regex))
-                          .sequential()
-                          .findAny()
-                          .isPresent();
+                          .anyMatch(p -> p.matches(regex));
     }
 }

@@ -21,8 +21,10 @@
 
 package com.intellij.idea.plugin.hybris.type.system.model;
 
+import com.intellij.idea.plugin.hybris.type.system.converter.AttributeHandlerReferenceConverter;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.GenericAttributeValue;
+import com.intellij.util.xml.Referencing;
 import com.intellij.util.xml.Required;
 import com.intellij.util.xml.SubTagList;
 import org.jetbrains.annotations.NotNull;
@@ -76,6 +78,7 @@ public interface Persistence extends DomElement {
      */
     @NotNull
     @com.intellij.util.xml.Attribute("attributeHandler")
+    @Referencing(AttributeHandlerReferenceConverter.class)
     GenericAttributeValue<String> getAttributeHandler();
 
 

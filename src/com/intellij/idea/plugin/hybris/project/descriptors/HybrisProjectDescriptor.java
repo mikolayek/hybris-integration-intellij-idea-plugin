@@ -49,6 +49,14 @@ public interface HybrisProjectDescriptor {
 
     void setModulesChosenForImport(@NotNull List<HybrisModuleDescriptor> moduleDescriptors);
 
+    // convenience method for configurators
+    @Nullable
+    ConfigHybrisModuleDescriptor getConfigHybrisModuleDescriptor();
+
+    // convenience method for configurators
+    @NotNull
+    PlatformHybrisModuleDescriptor getPlatformHybrisModuleDescriptor();
+
     @NotNull
     Set<HybrisModuleDescriptor> getAlreadyOpenedModules();
 
@@ -63,19 +71,21 @@ public interface HybrisProjectDescriptor {
     void setModulesFilesDirectory(@Nullable File modulesFilesDirectory);
 
     @Nullable
-    File getSourceCodeZip();
+    File getSourceCodeFile();
 
-    void setSourceCodeZip(@Nullable File sourceCodeZip);
+    void setSourceCodeFile(@Nullable File sourceCodeFile);
 
-    void setRootDirectoryAndScanForModules(@NotNull File rootDirectory,
-                                           @Nullable TaskProgressProcessor<File> progressListenerProcessor,
-                                           @Nullable TaskProgressProcessor<List<File>> errorsProcessor);
+    void setRootDirectoryAndScanForModules(
+        @NotNull File rootDirectory,
+        @Nullable TaskProgressProcessor<File> progressListenerProcessor,
+        @Nullable TaskProgressProcessor<List<File>> errorsProcessor
+    );
 
     boolean isOpenProjectSettingsAfterImport();
 
     void setOpenProjectSettingsAfterImport(boolean openProjectSettingsAfterImport);
 
-    Boolean isImportOotbModulesInReadOnlyMode();
+    boolean isImportOotbModulesInReadOnlyMode();
 
     void setImportOotbModulesInReadOnlyMode(boolean importOotbModulesInReadOnlyMode);
 
@@ -85,16 +95,38 @@ public interface HybrisProjectDescriptor {
     void setHybrisDistributionDirectory(@Nullable File hybrisDistributionDirectory);
 
     @Nullable
-    File getCustomExtensionsDirectory();
+    File getExternalExtensionsDirectory();
 
-    void setCustomExtensionsDirectory(@Nullable File customExtensionsDirectory);
+    void setExternalExtensionsDirectory(@Nullable File externalExtensionsDirectory);
 
-    boolean isCustomExtensionsPresent();
+    @Nullable
+    File getExternalConfigDirectory();
 
-    void setCustomExtensionsPresent(boolean present);
+    void setExternalConfigDirectory(@Nullable File configDir);
+
+    @Nullable
+    File getExternalDbDriversDirectory();
+
+    void setExternalDbDriversDirectory(@Nullable File dbDriversDir);
 
     @Nullable
     String getJavadocUrl();
 
     void setJavadocUrl(@Nullable String javadocUrl);
+
+    void setCreateBackwardCyclicDependenciesForAddOns(boolean selected);
+
+    boolean isCreateBackwardCyclicDependenciesForAddOn();
+
+    void setFollowSymlink(boolean followSymlink);
+
+    boolean isFollowSymlink();
+
+    void setScanThroughExternalModule(boolean scanThroughExternalModule);
+
+    boolean isScanThroughExternalModule();
+
+    void setHybrisVersion(String hybrisVersion);
+
+    String getHybrisVersion();
 }

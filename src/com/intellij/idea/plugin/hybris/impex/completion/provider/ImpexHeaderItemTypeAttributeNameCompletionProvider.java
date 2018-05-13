@@ -21,24 +21,18 @@ package com.intellij.idea.plugin.hybris.impex.completion.provider;
 import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionProvider;
 import com.intellij.codeInsight.completion.CompletionResultSet;
-import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.idea.plugin.hybris.common.utils.HybrisIcons;
 import com.intellij.idea.plugin.hybris.impex.psi.ImpexFullHeaderType;
 import com.intellij.idea.plugin.hybris.impex.psi.ImpexHeaderLine;
 import com.intellij.idea.plugin.hybris.impex.psi.ImpexHeaderTypeName;
-import com.intellij.idea.plugin.hybris.impex.utils.CommonPsiUtils;
-import com.intellij.idea.plugin.hybris.indexer.ItemTypesIndexService;
 import com.intellij.idea.plugin.hybris.type.system.meta.TSMetaClass;
 import com.intellij.idea.plugin.hybris.type.system.meta.TSMetaModel;
 import com.intellij.idea.plugin.hybris.type.system.meta.TSMetaModelAccess;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiClass;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiType;
-import com.intellij.psi.util.PropertyUtil;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
 import org.apache.commons.lang3.Validate;
@@ -46,6 +40,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -55,9 +50,6 @@ import java.util.stream.Stream;
  * @author Alexander Bartash <AlexanderBartash@gmail.com>
  */
 public class ImpexHeaderItemTypeAttributeNameCompletionProvider extends CompletionProvider<CompletionParameters> {
-
-    protected static final boolean GRAYED = true;
-    protected static final String UNNAMED = "<unnamed>";
 
     @NotNull
     public static CompletionProvider<CompletionParameters> getInstance() {
@@ -82,8 +74,7 @@ public class ImpexHeaderItemTypeAttributeNameCompletionProvider extends Completi
         final ImpexHeaderTypeName headerTypeName = this.getHeaderTypeNamePsiElementOfAttribute(psiElementUnderCaret);
 
         if (headerTypeName != null) {
-            this.fillJavaTypeFieldsCompletionResultsSet(project, headerTypeName, result);
-            this.fillDomAttributesCompletions(project, headerTypeName, result);
+            fillDomAttributesCompletions(project, headerTypeName, result);
         }
     }
 
@@ -100,63 +91,36 @@ public class ImpexHeaderItemTypeAttributeNameCompletionProvider extends Completi
         metaClass
             .map(meta -> meta.getPropertiesStream(true))
             .orElse(Stream.empty())
-            .filter(prop -> prop.getName() != null)
-            .map(prop -> createLookup(prop.getName()))
+            .map(prop -> {
+                final String name = prop.getName();
+
+                if (name == null) {
+                    return null;
+                }
+                final LookupElementBuilder builder = LookupElementBuilder
+                    .create(name)
+                    .withIcon(HybrisIcons.TYPE_SYSTEM)
+                    .withStrikeoutness(prop.isDeprecated());
+                final String typeText = getTypePresentableText(prop.getType());
+                return StringUtil.isEmpty(typeText) ? builder : builder.withTypeText(typeText, true);
+            })
+            .filter(Objects::nonNull)
             .forEach(resultSet::addElement);
 
         metaClass
             .map(meta -> meta.getReferenceEndsStream(true))
             .orElse(Stream.empty())
-            .map(ref -> createLookup(ref.getRole()))
+            .map(ref -> LookupElementBuilder.create(ref.getRole()).withIcon(HybrisIcons.TYPE_SYSTEM))
             .forEach(resultSet::addElement);
     }
 
-    protected LookupElement createLookup(final @Nullable String name) {
-        //FIXME: add type
-        return LookupElementBuilder
-            .create(Optional.ofNullable(name).orElse("<unnamed>")) //should not happen
-            .withIcon(HybrisIcons.TYPE_SYSTEM)
-            //.withTypeText(propertyType.getPresentableText(), GRAYED)
-            ;
-    }
-
-    protected void fillJavaTypeFieldsCompletionResultsSet(
-        @NotNull final Project project,
-        @NotNull final PsiElement headerTypeNamePsiElement,
-        @NotNull final CompletionResultSet resultSet
-    ) {
-        Validate.notNull(project);
-        Validate.notNull(resultSet);
-
-        final ItemTypesIndexService itemTypesIndexService = ServiceManager.getService(
-            project, ItemTypesIndexService.class
-        );
-
-        final PsiClass psiClass = itemTypesIndexService.getPsiClassByTypeCode(headerTypeNamePsiElement.getText());
-
-        if (null == psiClass) {
-            return;
+    @NotNull
+    private static String getTypePresentableText(@Nullable final String type) {
+        if (type == null) {
+            return "";
         }
-
-        for (PsiMethod psiMethod : psiClass.getAllMethods()) {
-            if (!CommonPsiUtils.isSetter(psiMethod)) {
-                continue;
-            }
-
-            final String propertyName = PropertyUtil.getPropertyNameBySetter(psiMethod);
-            final PsiType propertyType = PropertyUtil.getPropertyType(psiMethod);
-
-            if (null == propertyType) {
-                continue;
-            }
-
-            final LookupElementBuilder element = LookupElementBuilder
-                .create(propertyName)
-                .withStrikeoutness(psiMethod.isDeprecated()) // marks deprecation
-                .withTypeText(propertyType.getPresentableText(), GRAYED);
-
-            resultSet.addElement(element);
-        }
+        final int index = type.lastIndexOf('.');
+        return index >= 0 ? type.substring(index + 1) : type;
     }
 
     @Nullable

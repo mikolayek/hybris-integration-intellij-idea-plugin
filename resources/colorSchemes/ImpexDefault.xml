@@ -270,4 +270,18 @@
             <!--<option name="FONT_TYPE" value=""/>-->
         </value>
     </option>
+    <option name="BRACES">
+        <value>
+            <option name="FOREGROUND" value="808080"/>
+            <!--<option name="BACKGROUND" value=""/>-->
+            <!--<option name="FONT_TYPE" value=""/>-->
+        </value>
+    </option>
+    <option name="TABLE NAME">
+        <value>
+            <option name="FOREGROUND" value="5C5CFF"/>
+            <!--<option name="BACKGROUND" value=""/>-->
+            <!--<option name="FONT_TYPE" value=""/>-->
+        </value>
+    </option>
 </list>

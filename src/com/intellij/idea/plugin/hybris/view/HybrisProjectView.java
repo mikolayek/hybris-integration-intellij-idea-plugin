@@ -21,32 +21,41 @@ package com.intellij.idea.plugin.hybris.view;
 import com.google.common.collect.Iterables;
 import com.intellij.ide.projectView.TreeStructureProvider;
 import com.intellij.ide.projectView.ViewSettings;
+import com.intellij.ide.projectView.impl.ModuleGroup;
 import com.intellij.ide.projectView.impl.nodes.BasePsiNode;
 import com.intellij.ide.projectView.impl.nodes.ExternalLibrariesNode;
+import com.intellij.ide.projectView.impl.nodes.ProjectViewModuleGroupNode;
 import com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode;
 import com.intellij.ide.util.treeView.AbstractTreeNode;
 import com.intellij.ide.util.treeView.NodeOptions;
 import com.intellij.ide.util.treeView.PresentableNodeDescriptor.ColoredFragment;
 import com.intellij.idea.plugin.hybris.common.HybrisConstants;
+import com.intellij.idea.plugin.hybris.common.utils.HybrisIcons;
+import com.intellij.idea.plugin.hybris.project.descriptors.HybrisModuleDescriptor;
+import com.intellij.idea.plugin.hybris.project.descriptors.HybrisModuleDescriptorType;
 import com.intellij.idea.plugin.hybris.settings.HybrisApplicationSettings;
 import com.intellij.idea.plugin.hybris.settings.HybrisApplicationSettingsComponent;
 import com.intellij.idea.plugin.hybris.settings.HybrisProjectSettings;
 import com.intellij.idea.plugin.hybris.settings.HybrisProjectSettingsComponent;
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.SimpleTextAttributes;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+
+import static com.intellij.idea.plugin.hybris.settings.HybrisApplicationSettings.toIdeaGroup;
 
 /**
  * Created 10:14 PM 27 June 2015.
@@ -58,6 +67,8 @@ public class HybrisProjectView implements TreeStructureProvider, DumbAware {
     protected final Project project;
     protected final HybrisProjectSettings hybrisProjectSettings;
     protected final HybrisApplicationSettings hybrisApplicationSettings;
+    private final String[] commerceGroupName;
+    private final String[] platformGroupName;
 
     public HybrisProjectView(@NotNull final Project project) {
         Validate.notNull(project);
@@ -65,13 +76,17 @@ public class HybrisProjectView implements TreeStructureProvider, DumbAware {
         this.project = project;
         this.hybrisProjectSettings = HybrisProjectSettingsComponent.getInstance(project).getState();
         this.hybrisApplicationSettings = HybrisApplicationSettingsComponent.getInstance().getState();
+        this.commerceGroupName = toIdeaGroup(hybrisApplicationSettings.getGroupHybris());
+        this.platformGroupName = toIdeaGroup(hybrisApplicationSettings.getGroupPlatform());
     }
 
     @Override
     @NotNull
-    public Collection<AbstractTreeNode> modify(@NotNull final AbstractTreeNode parent,
-                                               @NotNull final Collection<AbstractTreeNode> children,
-                                               final ViewSettings settings) {
+    public Collection<AbstractTreeNode> modify(
+        @NotNull final AbstractTreeNode parent,
+        @NotNull final Collection<AbstractTreeNode> children,
+        final ViewSettings settings
+    ) {
         Validate.notNull(parent);
         Validate.notNull(children);
 
@@ -85,6 +100,10 @@ public class HybrisProjectView implements TreeStructureProvider, DumbAware {
                 : children;
         }
 
+        if (parent instanceof ProjectViewModuleGroupNode) {
+            modifyIcons((ProjectViewModuleGroupNode) parent, children);
+        }
+
         if (parent instanceof ExternalLibrariesNode) {
             return this.modifyExternalLibrariesNodes(children);
         }
@@ -94,6 +113,48 @@ public class HybrisProjectView implements TreeStructureProvider, DumbAware {
         return this.isCompactEmptyMiddleFoldersEnabled(settings)
             ? this.compactEmptyMiddlePackages(parent, childrenWithProcessedJunkFiles)
             : childrenWithProcessedJunkFiles;
+    }
+
+    private void modifyIcons(
+        final ProjectViewModuleGroupNode parent,
+        final Collection<AbstractTreeNode> children
+    ) {
+        if (parent.getValue() != null) {
+            ModuleGroup moduleGroup = parent.getValue();
+            if (Arrays.equals(moduleGroup.getGroupPath(), commerceGroupName) ||
+                Arrays.equals(moduleGroup.getGroupPath(), platformGroupName)) {
+                parent.getPresentation().setIcon(HybrisIcons.HYBRIS_ICON);
+            }
+        }
+        children.stream()
+                .filter(child -> child instanceof PsiDirectoryNode)
+                .filter(child -> child.getParent() == null)
+                .map(child -> (PsiDirectoryNode) child)
+                .forEach(child -> {
+                    final VirtualFile vf = child.getVirtualFile();
+                    if (vf == null) {
+                        return;
+                    }
+                    final Module module = ProjectRootManager.getInstance(project).getFileIndex().getModuleForFile(vf);
+                    if (module == null) {
+                        return;
+                    }
+                    final HybrisModuleDescriptorType type = HybrisModuleDescriptor.getDescriptorType(module);
+                    if (type == null) {
+                        return;
+                    }
+                    switch (type) {
+                        case PLATFORM:
+                        case EXT:
+                        case OOTB:
+                            parent.getPresentation().setIcon(HybrisIcons.HYBRIS_ICON);
+                            final AbstractTreeNode superParent = parent.getParent();
+                            if (superParent != null) {
+                                superParent.getPresentation().setIcon(HybrisIcons.HYBRIS_ICON);
+                            }
+                            return;
+                    }
+                });
     }
 
     protected boolean isCompactEmptyMiddleFoldersEnabled(@Nullable final NodeOptions settings) {
@@ -130,8 +191,10 @@ public class HybrisProjectView implements TreeStructureProvider, DumbAware {
     }
 
     @NotNull
-    protected Collection<AbstractTreeNode> processJunkFiles(@NotNull final Collection<AbstractTreeNode> children,
-                                                            @Nullable final ViewSettings settings) {
+    protected Collection<AbstractTreeNode> processJunkFiles(
+        @NotNull final Collection<AbstractTreeNode> children,
+        @Nullable final ViewSettings settings
+    ) {
         Validate.notNull(children);
 
         final List<String> junkFileNames = this.getJunkFileNames();
@@ -252,10 +315,12 @@ public class HybrisProjectView implements TreeStructureProvider, DumbAware {
         return parent;
     }
 
-    private void appendParentNameToOnlyChildName(@NotNull final PsiDirectoryNode parentPsiDirectoryNode,
-                                                 @NotNull final VirtualFile parentVirtualFile,
-                                                 @NotNull final PsiDirectoryNode onlyChildPsiDirectoryNode,
-                                                 @NotNull final VirtualFile onlyChildVirtualFile) {
+    private void appendParentNameToOnlyChildName(
+        @NotNull final PsiDirectoryNode parentPsiDirectoryNode,
+        @NotNull final VirtualFile parentVirtualFile,
+        @NotNull final PsiDirectoryNode onlyChildPsiDirectoryNode,
+        @NotNull final VirtualFile onlyChildVirtualFile
+    ) {
         Validate.notNull(parentPsiDirectoryNode);
         Validate.notNull(parentVirtualFile);
         Validate.notNull(onlyChildPsiDirectoryNode);
@@ -297,7 +362,7 @@ public class HybrisProjectView implements TreeStructureProvider, DumbAware {
     }
 
     protected boolean isNotHybrisProject() {
-        return null != this.hybrisProjectSettings && !this.hybrisProjectSettings.isHybisProject();
+        return null != this.hybrisProjectSettings && !this.hybrisProjectSettings.isHybrisProject();
     }
 
     protected boolean isJunk(@NotNull final VirtualFile virtualFile, @NotNull final List<String> junkFileNames) {

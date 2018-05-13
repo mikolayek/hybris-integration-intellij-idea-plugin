@@ -28,6 +28,12 @@ public class ImpexValueImpl extends ASTWrapperPsiElement implements ImpexValue {
 
   @Override
   @NotNull
+  public List<ImpexMacroUsageDec> getMacroUsageDecList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, ImpexMacroUsageDec.class);
+  }
+
+  @Override
+  @NotNull
   public List<ImpexString> getStringList() {
     return PsiTreeUtil.getChildrenOfTypeAsList(this, ImpexString.class);
   }

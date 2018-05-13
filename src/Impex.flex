@@ -64,6 +64,7 @@ right_round_bracket = [\)]
 
 semicolon    = [;]
 comma        = [,]
+dot          = [.]
 assign_value = [=]
 
 default_path_delimiter      = [:]
@@ -176,6 +177,7 @@ field_value_ignore = "<ignore>"
 <HEADER_LINE> {
     {semicolon}                                             { return ImpexTypes.PARAMETERS_SEPARATOR; }
     {comma}                                                 { return ImpexTypes.COMMA; }
+    {dot}                                                   { return ImpexTypes.DOT; }
 
     {macro_usage}                                           { return ImpexTypes.MACRO_USAGE; }
     {document_id}                                           { return ImpexTypes.DOCUMENT_ID; }

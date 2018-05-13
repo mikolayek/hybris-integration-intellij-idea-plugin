@@ -1,0 +1,129 @@
+<idea-plugin>
+
+    <id>ccom.intellij.idea.plugin.hybris.impex</id>
+    <name>hybris integration</name>
+    <version>8.6.9</version>
+
+    <!-- http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html -->
+    <idea-version since-build="173"/>
+
+    <vendor email="AlexanderBartash@gmail.com"
+            url="https://hybris-integration.atlassian.net/wiki/display/IIPPS/Intellij+IDEA+Plugin+Public+Space">
+        Alexander Bartash
+    </vendor>
+
+    <description>
+        <![CDATA[
+          <p>This plugin is an open source plugin for SAP Hybris Commerce integration.</p>
+          <p>Bug tracker: <a href="https://hybris-integration.atlassian.net/projects/IIPS">Intellij IDEA Plugin Support</a></p>
+
+          <b>If you have any questions you can send an email to:</b>
+          <ul>
+              <li><a href="mailto:AlexanderBartash@gmail.com?cc=martin.zdarsky@hybris.com">Alexander Bartash</a> (repo owner)</li>
+              <li><a href="mailto:martin.zdarsky@hybris.com?cc=AlexanderBartash@gmail.com">Martin Zdarsky-Jones</a></li>
+          </ul>
+
+          <b>Features:</b>
+          <ul>
+              <li>Import of Hybris extensions to Intellij IDEA with automatic dependency resolution and classpath configuration optimized for fast compilation and correct unit and integration tests execution.</li>
+              <li>Automatic configuration of Spring, Web, Ant, Database Connector Intellij IDEA plugins.</li>
+              <li>Import your custom Eclise, Maven and Gradle extensions together with Hybris platform.</li>
+              <li>Custom editor for flexible Search queries with an ability to execute them on a remote Hybris instance right from your IDE by single click of a button.</li>
+              <li>Custom editor for impex files with automatic formatting, find usages and go to declaration actions, validation and import of impexes into a remote Hybris instance right from your IDE by single click of a button.</li>
+              <li>Custom editor for items.xml with validation, best-practices analyses, quick-fix autosuggestion and easy navigation.</li>
+              <li>Custom editor for beans.xml with custom automated Intellij refactorings actions.</li>
+              <li>Visualization of business process graph (use context menu of the file "Diagrams/Show Diagram", only Ultimate IDEA).</li>
+              <li>Enhanced project view tree.</li>
+              <li>JRebel and DCEVM support.</li>
+              <li>And much more</li>
+          </ul>
+
+          <b>Contribution guidelines:</b>
+          <ul>
+              <li>Please read <a href="http://developercertificate.org/">Contributor License Agreement</a></li>
+              <li>Available tasks are in our JIRA: <a href="https://hybris-integration.atlassian.net/projects/IIP">IIP</a> and <a href="https://hybris-integration.atlassian.net/projects/IIPS">IIPS</a> (requires a login but you can <a href="https://hybris-integration.atlassian.net/admin/users/sign-up">sign-up</a>)</li>
+              <li><a href="https://hybris-integration.atlassian.net/wiki/spaces/IIPPS/pages/9863192/How+to+Configure+Project+Environment+For+Plugin+Developers">How to Configure Project Environment For Plugin Developers</a></li>
+              <li>We are working with <a href="https://help.github.com/articles/about-pull-requests/">Pull Requests</a>. You need to fork this repository, implement a feature in a separate branch, then send us a pull request.</li>
+              <li>Be sure to include into your pull request and all commit messages the following line: "Signed-off-by: Your Real Name your.email@email.com" otherwise it can not be accepted. Use your real name (sorry, no pseudonyms or anonymous contributions).</li>
+              <li>For additional questions you can send an <a href="mailto:AlexanderBartash@gmail.com?cc=martin.zdarsky@hybris.com">email</a></li>
+          </ul>
+
+          <p>By installing thing plugin you agree to sending us anonymous statistics about plugin usage. We do not collect any information about you or your project. We just want to know which features from this plugin our users need most and learn new ways to make thing plugin better.</p>
+
+          <b>Backers</b>
+          <p>Thank you to all our backers!</p>
+          <p>
+              <a href="https://opencollective.com/hybris-integration-intellij-idea-plugin#backers" target="_blank"><img src="https://opencollective.com/hybris-integration-intellij-idea-plugin/backers.svg?width=890"></a>
+          </p>
+
+          <b>Sponsors</b>
+          <p>Support this project by becoming a sponsor. Your logo will show up here with a link to your website.</p>
+          <p>
+              <a href="https://opencollective.com/hybris-integration-intellij-idea-plugin/sponsor/0/website" target="_blank"><img src="https://opencollective.com/hybris-integration-intellij-idea-plugin/sponsor/0/avatar.svg"></a>
+              <a href="https://opencollective.com/hybris-integration-intellij-idea-plugin/sponsor/1/website" target="_blank"><img src="https://opencollective.com/hybris-integration-intellij-idea-plugin/sponsor/1/avatar.svg"></a>
+              <a href="https://opencollective.com/hybris-integration-intellij-idea-plugin/sponsor/2/website" target="_blank"><img src="https://opencollective.com/hybris-integration-intellij-idea-plugin/sponsor/2/avatar.svg"></a>
+              <a href="https://opencollective.com/hybris-integration-intellij-idea-plugin/sponsor/3/website" target="_blank"><img src="https://opencollective.com/hybris-integration-intellij-idea-plugin/sponsor/3/avatar.svg"></a>
+              <a href="https://opencollective.com/hybris-integration-intellij-idea-plugin/sponsor/4/website" target="_blank"><img src="https://opencollective.com/hybris-integration-intellij-idea-plugin/sponsor/4/avatar.svg"></a>
+              <a href="https://opencollective.com/hybris-integration-intellij-idea-plugin/sponsor/5/website" target="_blank"><img src="https://opencollective.com/hybris-integration-intellij-idea-plugin/sponsor/5/avatar.svg"></a>
+              <a href="https://opencollective.com/hybris-integration-intellij-idea-plugin/sponsor/6/website" target="_blank"><img src="https://opencollective.com/hybris-integration-intellij-idea-plugin/sponsor/6/avatar.svg"></a>
+              <a href="https://opencollective.com/hybris-integration-intellij-idea-plugin/sponsor/7/website" target="_blank"><img src="https://opencollective.com/hybris-integration-intellij-idea-plugin/sponsor/7/avatar.svg"></a>
+              <a href="https://opencollective.com/hybris-integration-intellij-idea-plugin/sponsor/8/website" target="_blank"><img src="https://opencollective.com/hybris-integration-intellij-idea-plugin/sponsor/8/avatar.svg"></a>
+              <a href="https://opencollective.com/hybris-integration-intellij-idea-plugin/sponsor/9/website" target="_blank"><img src="https://opencollective.com/hybris-integration-intellij-idea-plugin/sponsor/9/avatar.svg"></a>
+          </p>
+
+          <b>Contributors and Developers</b>
+          <p>This project exists thanks to all the people who contribute.</p>
+          <p>
+              <a href="graphs/contributors"><img src="https://opencollective.com/hybris-integration-intellij-idea-plugin/contributors.svg?width=890&button=false"/></a>
+          </p>
+          <ul>
+              <li>Alexander Bartash</li>
+              <li>Vlad Bozhenok</li>
+              <li>Martin Zdarsky-Jones</li>
+              <li>Alexander Nosov</li>
+              <li>Eugene Kudelevsky</li>
+              <li>Cristian Caprar</li>
+              <li>Daniel Carter</li>
+              <li>Oleksandr Mishchuk</li>
+              <li>Michael Golubev</li>
+              <li>Nicko Cadell</li>
+              <li>Dan Wanigasekera</li>
+              <li>Markus Priegl</li>
+              <li>Sergei Aksenenko</li>
+              <li>Roger Ye</li>
+              <li>Hector Longarte</li>
+          </ul>
+      ]]>
+    </description>
+
+    <change-notes>
+        <![CDATA[
+            <h2>Story</h2>
+            <ul>
+                <li>[<a href='https://hybris-integration.atlassian.net/browse/IIP-219'>IIP-219</a>] - Output / Export TSV Report </li>
+                <li>[<a href='https://hybris-integration.atlassian.net/browse/IIP-349'>IIP-349</a>] - Add ability to execute FS/Impex/Groovy Script from IDEA </li>
+                <li>[<a href='https://hybris-integration.atlassian.net/browse/IIP-401'>IIP-401</a>] - Allow to configure Tomcat SSL port number for HAC in Hybris panel</li>
+            </ul>
+
+            <h2>Task</h2>
+            <ul>
+                <li>[<a href='https://hybris-integration.atlassian.net/browse/IIP-155'>IIP-155</a>] - TSV list all problems </li>
+                <li>[<a href='https://hybris-integration.atlassian.net/browse/IIP-417'>IIP-417</a>] - Enhancement of duplicate bean definition inspection </li>
+            </ul>
+
+            <h2>Bug</h2>
+            <ul>
+                <li>[<a href='https://hybris-integration.atlassian.net/browse/IIP-414'>IIP-414</a>] - TS diagram doesn&#39;t render Collections </li>
+                <li>[<a href='https://hybris-integration.atlassian.net/browse/IIP-419'>IIP-419</a>] - Incorrect completion for column value in FlexibleSearch query </li>
+            </ul>
+
+            <h2>Sub-task</h2>
+            <ul>
+                <li>[<a href='https://hybris-integration.atlassian.net/browse/IIP-258'>IIP-258</a>] - Add navigation from FlexibleSearch type and attributes to Type System (simple case) </li>
+                <li>[<a href='https://hybris-integration.atlassian.net/browse/IIP-364'>IIP-364</a>] - Create a tool-window for showing a result of execution Impex/Groovy/FlexibleSearch </li>
+                <li>[<a href='https://hybris-integration.atlassian.net/browse/IIP-418'>IIP-418</a>] - Add navigation from FlexibleSearch attributes to Type System (case with prefix) </li>
+                <li>[<a href='https://hybris-integration.atlassian.net/browse/IIP-345'>IIP-345</a>] - Add dependencies to TS diagram </li>
+            </ul>
+        ]]>
+    </change-notes>
+</idea-plugin>

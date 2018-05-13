@@ -7,7 +7,4 @@ import com.intellij.psi.PsiElement;
 
 public interface ImpexSubParameters extends ImpexParameters {
 
-  @NotNull
-  List<ImpexParameter> getParameterList();
-
 }

@@ -21,6 +21,7 @@ package com.intellij.idea.plugin.hybris.common.services.impl;
 import com.intellij.idea.plugin.hybris.common.services.VirtualFileSystemService;
 import com.intellij.idea.plugin.hybris.project.tasks.TaskProgressProcessor;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -92,40 +93,34 @@ public class DefaultVirtualFileSystemService implements VirtualFileSystemService
 
     @Override
     @Nullable
-    public File findFileByNameInDirectory(@NotNull final File directory,
-                                          @NotNull final String fileName,
-                                          @Nullable final TaskProgressProcessor<File> progressListenerProcessor
+    public File findFileByNameInDirectory(
+        @NotNull final File directory,
+        @NotNull final String fileName,
+        @Nullable final TaskProgressProcessor<File> progressListenerProcessor
     ) throws InterruptedException {
         Validate.notNull(directory);
         Validate.isTrue(directory.isDirectory());
         Validate.notNull(fileName);
 
-        if (null != progressListenerProcessor) {
-            if (!progressListenerProcessor.shouldContinue(directory)) {
-                throw new InterruptedException("Modules scanning has been interrupted.");
+        final Ref<File> result = Ref.create();
+        final Ref<Boolean> interrupted = Ref.create(false);
+
+        FileUtil.processFilesRecursively(directory, file -> {
+            if (progressListenerProcessor != null && !progressListenerProcessor.shouldContinue(directory)) {
+                interrupted.set(true);
+                return false;
             }
-        }
-
-        final File[] files = directory.listFiles();
-
-        if (null != files) {
-            for (File file : files) {
-
-                if (StringUtils.endsWith(file.getAbsolutePath(), fileName)) {
-                    return file;
-                }
-
-                if (file.isDirectory()) {
-                    final File result = findFileByNameInDirectory(file, fileName, progressListenerProcessor);
-
-                    if (null != result) {
-                        return result;
-                    }
-                }
+            if (StringUtils.endsWith(file.getAbsolutePath(), fileName)) {
+                result.set(file);
+                return false;
             }
-        }
+            return true;
+        });
 
-        return null;
+        if (interrupted.get()) {
+            throw new InterruptedException("Modules scanning has been interrupted.");
+        }
+        return result.get();
     }
 
     @Override

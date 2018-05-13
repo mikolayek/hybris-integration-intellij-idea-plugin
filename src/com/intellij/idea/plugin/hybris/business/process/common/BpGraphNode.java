@@ -18,8 +18,8 @@
 
 package com.intellij.idea.plugin.hybris.business.process.common;
 
-import com.intellij.idea.plugin.hybris.business.process.jaxb.model.BpGenericAction;
 import com.intellij.idea.plugin.hybris.business.process.jaxb.Process;
+import com.intellij.idea.plugin.hybris.business.process.jaxb.model.BpGenericAction;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 

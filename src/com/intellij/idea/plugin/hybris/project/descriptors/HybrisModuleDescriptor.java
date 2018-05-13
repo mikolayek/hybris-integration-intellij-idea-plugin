@@ -18,6 +18,8 @@
 
 package com.intellij.idea.plugin.hybris.project.descriptors;
 
+import com.intellij.idea.plugin.hybris.common.HybrisConstants;
+import com.intellij.openapi.module.Module;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,7 +34,7 @@ import java.util.Set;
  */
 public interface HybrisModuleDescriptor extends Comparable<HybrisModuleDescriptor> {
 
-    enum DescriptorType {CONFIG, CUSTOM, EXT, NONE, OOTB, PLATFORM}
+    enum IMPORT_STATUS {MANDATORY, UNUSED}
 
     @NotNull
     String getName();
@@ -63,10 +65,6 @@ public interface HybrisModuleDescriptor extends Comparable<HybrisModuleDescripto
     @NotNull
     List<JavaLibraryDescriptor> getLibraryDescriptors();
 
-    boolean isInCustomDir();
-
-    boolean isCustomExtensionsPresent();
-
     boolean isPreselected();
 
     boolean isInLocalExtensions();
@@ -76,7 +74,7 @@ public interface HybrisModuleDescriptor extends Comparable<HybrisModuleDescripto
     @NotNull
     Set<String> getSpringFileSet();
 
-    void addSpringFile(@NotNull String springFile);
+    boolean addSpringFile(@NotNull String springFile);
 
     @Nullable
     File getWebRoot();
@@ -84,6 +82,23 @@ public interface HybrisModuleDescriptor extends Comparable<HybrisModuleDescripto
     boolean isAddOn();
 
     @NotNull
-    DescriptorType getDescriptorType();
+    HybrisModuleDescriptorType getDescriptorType();
 
+    boolean hasServerJar();
+
+    @Nullable
+    static HybrisModuleDescriptorType getDescriptorType(@NotNull final Module module) {
+        final String descriptorTypeName = module.getOptionValue(HybrisConstants.DESCRIPTOR_TYPE);
+        try {
+            return descriptorTypeName == null
+                ? null
+                : HybrisModuleDescriptorType.valueOf(descriptorTypeName);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    void setImportStatus(IMPORT_STATUS importStatus);
+
+    IMPORT_STATUS getImportStatus();
 }

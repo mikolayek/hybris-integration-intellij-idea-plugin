@@ -21,6 +21,7 @@ package com.intellij.idea.plugin.hybris.project.descriptors;
 import com.intellij.idea.plugin.hybris.project.exceptions.HybrisConfigurationException;
 import com.intellij.idea.plugin.hybris.project.services.HybrisProjectService;
 import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.diagnostic.Logger;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,10 +34,13 @@ import java.io.File;
  */
 public class DefaultHybrisModuleDescriptorFactory implements HybrisModuleDescriptorFactory {
 
+    private static final Logger LOG = Logger.getInstance(DefaultHybrisModuleDescriptorFactory.class);
+
     @NotNull
     @Override
-    public HybrisModuleDescriptor createDescriptor(@NotNull final File file,
-                                                   @NotNull final HybrisProjectDescriptor rootProjectDescriptor
+    public HybrisModuleDescriptor createDescriptor(
+        @NotNull final File file,
+        @NotNull final HybrisProjectDescriptor rootProjectDescriptor
     ) throws HybrisConfigurationException {
         Validate.notNull(file);
         Validate.notNull(rootProjectDescriptor);
@@ -44,26 +48,47 @@ public class DefaultHybrisModuleDescriptorFactory implements HybrisModuleDescrip
         final HybrisProjectService hybrisProjectService = ServiceManager.getService(HybrisProjectService.class);
 
         if (hybrisProjectService.isConfigModule(file)) {
+            LOG.info("Creating Config module for " + file.getAbsolutePath());
             return new ConfigHybrisModuleDescriptor(file, rootProjectDescriptor);
         }
 
         if (hybrisProjectService.isPlatformModule(file)) {
+            LOG.info("Creating Platform module for " + file.getAbsolutePath());
             return new PlatformHybrisModuleDescriptor(file, rootProjectDescriptor);
         }
 
         if (hybrisProjectService.isCoreExtModule(file)) {
-            return new CoreHybrisHybrisModuleDescriptor(file, rootProjectDescriptor);
+            LOG.info("Creating Core EXT module for " + file.getAbsolutePath());
+            return new CoreHybrisModuleDescriptor(file, rootProjectDescriptor);
         }
 
         if (hybrisProjectService.isPlatformExtModule(file)) {
+            LOG.info("Creating Platform EXT module for " + file.getAbsolutePath());
             return new ExtHybrisModuleDescriptor(file, rootProjectDescriptor);
         }
 
-        if (hybrisProjectService.isOutOfTheBoxModule(file)) {
+        if (hybrisProjectService.isOutOfTheBoxModule(file, rootProjectDescriptor)) {
+            LOG.info("Creating OOTB module for " + file.getAbsolutePath());
             return new OotbHybrisModuleDescriptor(file, rootProjectDescriptor);
         }
 
-        return new CustomHybrisModuleDescriptor(file, rootProjectDescriptor);
+        if (hybrisProjectService.isHybrisModule(file)) {
+            LOG.info("Creating Custom hybris module for " + file.getAbsolutePath());
+            return new CustomHybrisModuleDescriptor(file, rootProjectDescriptor);
+        }
+
+        if (hybrisProjectService.isGradleModule(file)) {
+            LOG.info("Creating gradle module for " + file.getAbsolutePath());
+            return new GradleModuleDescriptor(file, rootProjectDescriptor);
+        }
+
+        if (hybrisProjectService.isMavenModule(file)) {
+            LOG.info("Creating maven module for " + file.getAbsolutePath());
+            return new MavenModuleDescriptor(file, rootProjectDescriptor);
+        }
+
+        LOG.info("Creating eclipse module for " + file.getAbsolutePath());
+        return new EclipseModuleDescriptor(file, rootProjectDescriptor);
     }
 
 }

@@ -22,12 +22,8 @@ import com.google.common.collect.Sets;
 import com.intellij.idea.plugin.hybris.common.HybrisConstants;
 import com.intellij.idea.plugin.hybris.project.exceptions.HybrisConfigurationException;
 import com.intellij.idea.plugin.hybris.project.settings.jaxb.extensioninfo.ExtensionInfo;
-import com.intellij.idea.plugin.hybris.project.settings.jaxb.extensioninfo.MetaType;
 import com.intellij.idea.plugin.hybris.project.settings.jaxb.extensioninfo.RequiresExtensionType;
-import com.intellij.idea.plugin.hybris.settings.HybrisApplicationSettings;
-import com.intellij.idea.plugin.hybris.settings.HybrisApplicationSettingsComponent;
 import com.intellij.openapi.diagnostic.Logger;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -44,10 +40,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.intellij.idea.plugin.hybris.common.HybrisConstants.BACK_OFFICE_MODULE_DIRECTORY;
 import static com.intellij.idea.plugin.hybris.common.HybrisConstants.BACK_OFFICE_MODULE_META_KEY_NAME;
+import static com.intellij.idea.plugin.hybris.common.HybrisConstants.HAC_MODULE_META_KEY_NAME;
+import static com.intellij.idea.plugin.hybris.common.HybrisConstants.HAC_WEB_INF_CLASSES;
 import static com.intellij.idea.plugin.hybris.common.HybrisConstants.HMC_MODULE_DIRECTORY;
-import static com.intellij.idea.plugin.hybris.common.utils.CollectionUtils.emptyIfNull;
-import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static com.intellij.idea.plugin.hybris.common.HybrisConstants.WEB_INF_CLASSES_DIRECTORY;
+import static com.intellij.idea.plugin.hybris.common.utils.CollectionUtils.emptyListIfNull;
+import static com.intellij.idea.plugin.hybris.project.descriptors.HybrisModuleDescriptorType.CUSTOM;
+import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
@@ -88,7 +89,7 @@ public abstract class RegularHybrisModuleDescriptor extends AbstractHybrisModule
             throw new HybrisConfigurationException("Can not find module name using path: " + moduleRootDirectory);
         }
 
-        this.moduleName = StringUtils.lowerCase(extensionInfo.getExtension().getName());
+        this.moduleName = extensionInfo.getExtension().getName();
     }
 
     @Nullable
@@ -120,6 +121,19 @@ public abstract class RegularHybrisModuleDescriptor extends AbstractHybrisModule
             return JAXBContext.newInstance(ExtensionInfo.class);
         } catch (JAXBException e) {
             LOG.error("Can not create JAXBContext for ExtensionInfo.", e);
+        }
+
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public File getWebRoot() {
+
+        final File webRoot = new File(this.getRootDirectory(), HybrisConstants.WEB_ROOT_DIRECTORY_RELATIVE_PATH);
+
+        if (webRoot.exists()) {
+            return webRoot;
         }
 
         return null;
@@ -167,6 +181,10 @@ public abstract class RegularHybrisModuleDescriptor extends AbstractHybrisModule
         return null != this.extensionInfo.getExtension().getHmcmodule();
     }
 
+    public boolean isHacAddon() {
+        return this.isMetaKeySetToTrue(HAC_MODULE_META_KEY_NAME);
+    }
+
     public boolean hasBackofficeModule() {
         return this.isMetaKeySetToTrue(BACK_OFFICE_MODULE_META_KEY_NAME) && this.doesBackofficeDirectoryExist();
     }
@@ -174,29 +192,27 @@ public abstract class RegularHybrisModuleDescriptor extends AbstractHybrisModule
     protected boolean isMetaKeySetToTrue(@NotNull final String metaKeyName) {
         Validate.notEmpty(metaKeyName);
 
-        for (MetaType metaType : emptyIfNull(this.extensionInfo.getExtension().getMeta())) {
-            if (metaKeyName.equalsIgnoreCase(metaType.getKey())) {
-                return Boolean.TRUE.toString().equals(metaType.getValue());
-            }
-        }
-
-        return false;
+        return emptyListIfNull(this.extensionInfo.getExtension().getMeta()).stream().anyMatch(
+            meta -> metaKeyName.equalsIgnoreCase(meta.getKey()) && Boolean.TRUE.toString().equals(meta.getValue())
+        );
     }
 
     protected boolean doesBackofficeDirectoryExist() {
-        return new File(this.getRootDirectory(), HybrisConstants.BACK_OFFICE_MODULE_DIRECTORY).isDirectory();
+        return new File(this.getRootDirectory(), BACK_OFFICE_MODULE_DIRECTORY).isDirectory();
     }
 
     @NotNull
     @Override
     public List<JavaLibraryDescriptor> getLibraryDescriptors() {
         final List<JavaLibraryDescriptor> libs = new ArrayList<>();
+        final HybrisModuleDescriptorType descriptorType = getDescriptorType();
+        final boolean importOotbModulesInReadOnlyMode = getRootProjectDescriptor().isImportOotbModulesInReadOnlyMode();
 
-        if (this.getRootProjectDescriptor().isImportOotbModulesInReadOnlyMode()) {
+        if (importOotbModulesInReadOnlyMode) {
 
-            if (!this.isInCustomDir()) {
+            if (descriptorType != CUSTOM) {
                 libs.add(new DefaultJavaLibraryDescriptor(
-                    new File(this.getRootDirectory(), HybrisConstants.WEB_INF_CLASSES_DIRECTORY),
+                    new File(this.getRootDirectory(), WEB_INF_CLASSES_DIRECTORY),
                     new File(this.getRootDirectory(), HybrisConstants.WEB_SRC_DIRECTORY),
                     false, true
                 ));
@@ -218,13 +234,25 @@ public abstract class RegularHybrisModuleDescriptor extends AbstractHybrisModule
                     true, true
                 ));
             }
+        }
 
-        } else {
+        // https://hybris-integration.atlassian.net/browse/IIP-355
+        // HAC addons can not be compiled correctly by Intellij build because
+        // "hybris/bin/platform/ext/hac/web/webroot/WEB-INF/classes" from "hac" extension is not registered
+        // as a dependency for HAC addons.
+        if (this.isHacAddon()) {
+            libs.add(new DefaultJavaLibraryDescriptor(
+                new File(this.getRootProjectDescriptor().getHybrisDistributionDirectory(), HAC_WEB_INF_CLASSES),
+                false, true
+            ));
+        }
 
-            final File webSrcDir = new File(this.getRootDirectory(), HybrisConstants.WEB_SRC_DIRECTORY);
-            if (!webSrcDir.exists()) {
+        final File webSrcDir = new File(this.getRootDirectory(), HybrisConstants.WEB_SRC_DIRECTORY);
+
+        if (!webSrcDir.exists()) {
+            if (!importOotbModulesInReadOnlyMode) {
                 libs.add(new DefaultJavaLibraryDescriptor(
-                    new File(this.getRootDirectory(), HybrisConstants.WEB_INF_CLASSES_DIRECTORY), false, true
+                    new File(this.getRootDirectory(), WEB_INF_CLASSES_DIRECTORY), false, true
                 ));
             }
         }
@@ -247,7 +275,7 @@ public abstract class RegularHybrisModuleDescriptor extends AbstractHybrisModule
 
         libs.add(new DefaultJavaLibraryDescriptor(
             new File(this.getRootDirectory(), HybrisConstants.COMMONWEB_WEBINF_LIB_DIRECTORY),
-            false
+            true
         ));
 
         libs.add(new DefaultJavaLibraryDescriptor(
@@ -261,13 +289,20 @@ public abstract class RegularHybrisModuleDescriptor extends AbstractHybrisModule
         ));
 
         if (this.hasHmcModule()) {
-            libs.add(new DefaultJavaLibraryDescriptor(
-                new File(
-                    this.getRootProjectDescriptor().getHybrisDistributionDirectory(),
-                    HybrisConstants.HMC_WEB_INF_CLASSES
-                ),
-                false, true
-            ));
+            final HybrisModuleDescriptor hmcModule = getRootProjectDescriptor()
+                .getModulesChosenForImport().stream()
+                .filter(e -> e.getName().equals(HybrisConstants.HMC_EXTENSION_NAME))
+                .findFirst()
+                .orElse(null);
+            if (hmcModule != null) {
+                libs.add(new DefaultJavaLibraryDescriptor(
+                    new File(
+                        hmcModule.getRootDirectory(),
+                        HybrisConstants.WEB_INF_CLASSES_DIRECTORY
+                    ),
+                    false, true
+                ));
+            }
         }
 
         if (this.hasBackofficeModule()) {
@@ -277,6 +312,13 @@ public abstract class RegularHybrisModuleDescriptor extends AbstractHybrisModule
                     HybrisConstants.BACKOFFICE_WEB_INF_LIB
                 ),
                 false, false
+            ));
+            libs.add(new DefaultJavaLibraryDescriptor(
+                new File(
+                    this.getRootProjectDescriptor().getHybrisDistributionDirectory(),
+                    HybrisConstants.BACKOFFICE_WEB_INF_CLASSES
+                ),
+                false, true
             ));
         }
 
@@ -290,10 +332,7 @@ public abstract class RegularHybrisModuleDescriptor extends AbstractHybrisModule
     protected void processAddOnBackwardDependencies(@NotNull final List<JavaLibraryDescriptor> libs) {
         Validate.notNull(libs);
 
-        final HybrisApplicationSettingsComponent applicationSettings = HybrisApplicationSettingsComponent.getInstance();
-        final HybrisApplicationSettings hybrisApplicationSettings = applicationSettings.getState();
-
-        if (!hybrisApplicationSettings.isCreateBackwardCyclicDependenciesForAddOns()) {
+        if (!getRootProjectDescriptor().isCreateBackwardCyclicDependenciesForAddOn()) {
             return;
         }
 
@@ -316,18 +355,6 @@ public abstract class RegularHybrisModuleDescriptor extends AbstractHybrisModule
         return isInLocalExtensions();
     }
 
-    @Nullable
-    @Override
-    public File getWebRoot() {
-
-        final File webRoot = new File(this.getRootDirectory(), HybrisConstants.WEB_ROOT_DIRECTORY_RELATIVE_PATH);
-
-        if (webRoot.exists()) {
-            return webRoot;
-        }
-
-        return null;
-    }
 
     protected Set<String> getDefaultRequiredExtensionNames() {
         return Collections.unmodifiableSet(Sets.newHashSet(HybrisConstants.PLATFORM_EXTENSION_NAME));

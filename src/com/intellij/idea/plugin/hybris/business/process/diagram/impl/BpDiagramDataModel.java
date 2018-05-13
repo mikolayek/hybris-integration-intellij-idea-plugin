@@ -94,7 +94,8 @@ public final class BpDiagramDataModel extends DiagramDataModel<BpGraphNode> {
 
                 final BpGraphNode targetBpGraphNode = transition.getValue();
                 if (null != targetBpGraphNode) {
-                    final BpDiagramFileNode targetBpDiagramFileNode = this.nodesMap.get(targetBpGraphNode.getGenericAction().getId());
+                    final BpDiagramFileNode targetBpDiagramFileNode = this.nodesMap.get(targetBpGraphNode.getGenericAction()
+                                                                                                         .getId());
 
                     final BpDiagramFileEdge edge = new BpDiagramFileEdge(
                         sourceBpDiagramFileNode, targetBpDiagramFileNode, new BpDiagramRelationship(transitionName)

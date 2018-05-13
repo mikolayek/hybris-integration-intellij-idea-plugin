@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ This file is part of "hybris integration" plugin for Intellij IDEA.
+  ~ Copyright (C) 2014-2016 Alexander Bartash <AlexanderBartash@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU Lesser General Public License as
+  ~ published by the Free Software Foundation, either version 3 of the
+  ~ License, or (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public License
+  ~ along with this program. If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<svg id="Layer_1" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="pattern-0" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse" viewBox="0 0 100 100">
+      <path d="M 0 0 L 50 0 L 50 100 L 0 100 Z" style="fill: black;"/>
+    </pattern>
+  </defs>
+  <title>java</title>
+  <g transform="matrix(2.392679, 0, 0, 2.392679, -2.316222, -3.169199)">
+    <g/>
+    <g opacity="1.0">
+      <path d="M 8.146 12.101 L 6.394 9.181 L 6.27 8.947 L 6.139 8.731 L 3.808 4.595 L 6.115 4.642 C 6.099 4.614 7.128 6.471 7.197 6.587 C 7.206 6.737 8.053 4.685 8.055 4.683 C 8.055 4.685 10.309 4.653 10.309 4.653 L 8.414 8.604 L 10.608 12.056 L 8.146 12.101 Z" style="fill: rgb(0, 119, 193);"/>
+    </g>
+  </g>
+  <path d="M 10.001 31.608 L 10.01 27.759 L 5.612 27.717 C 5.612 27.717 3.926 20.211 3.904 15.963 C 3.882 11.343 5.625 4.204 5.625 4.204 L 10.044 4.185 L 10.001 0.34 L 2.368 0.379 C 2.368 0.379 0.234 10.81 0.22 15.953 C 0.21 20.847 2.39 31.58 2.39 31.58 L 10.001 31.608 Z" style="fill: rgb(0, 119, 193);"/>
+
+  <path d="M 31.674 0.278 L 31.683 4.127 L 27.285 4.169 C 27.285 4.169 25.599 11.675 25.577 15.923 C 25.555 20.543 27.298 27.682 27.298 27.682 L 31.717 27.701 L 31.674 31.546 L 24.041 31.507 C 24.041 31.507 21.907 21.076 21.893 15.933 C 21.883 11.039 24.063 0.306 24.063 0.306 L 31.674 0.278 Z" style="fill: rgb(0, 119, 193);" transform="matrix(-1, 0, 0, -1, 53.609963, 31.823998)"/>
+</svg>

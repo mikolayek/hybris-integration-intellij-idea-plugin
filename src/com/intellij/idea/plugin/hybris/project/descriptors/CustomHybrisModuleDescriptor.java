@@ -42,7 +42,7 @@ public class CustomHybrisModuleDescriptor extends RegularHybrisModuleDescriptor 
     }
 
     @Override
-    public DescriptorType getDescriptorType() {
-        return DescriptorType.CUSTOM;
+    public HybrisModuleDescriptorType getDescriptorType() {
+        return HybrisModuleDescriptorType.CUSTOM;
     }
 }

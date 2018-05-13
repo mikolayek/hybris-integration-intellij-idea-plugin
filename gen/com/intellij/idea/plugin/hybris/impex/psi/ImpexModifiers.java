@@ -10,4 +10,7 @@ public interface ImpexModifiers extends PsiElement {
   @NotNull
   List<ImpexAttribute> getAttributeList();
 
+  @NotNull
+  List<ImpexMacroUsageDec> getMacroUsageDecList();
+
 }

@@ -20,8 +20,8 @@ package com.intellij.idea.plugin.hybris.impex.constants.modifier;
 
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
-
 import org.jetbrains.annotations.Nullable;
+
 import java.util.HashMap;
 import java.util.Map;
 

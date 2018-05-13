@@ -19,8 +19,8 @@
 package com.intellij.idea.plugin.hybris.business.process.common.impl;
 
 import com.intellij.idea.plugin.hybris.business.process.common.BpGraphNode;
-import com.intellij.idea.plugin.hybris.business.process.jaxb.model.BpGenericAction;
 import com.intellij.idea.plugin.hybris.business.process.jaxb.Process;
+import com.intellij.idea.plugin.hybris.business.process.jaxb.model.BpGenericAction;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -43,10 +43,12 @@ public class DefaultBpGraphNode implements BpGraphNode {
     protected final Map<String, BpGraphNode> nodeMap;
     protected final Process process;
 
-    public DefaultBpGraphNode(@NotNull final BpGenericAction genericAction,
-                              @NotNull final Map<String, BpGraphNode> nodeMap,
-                              @NotNull final VirtualFile virtualFile,
-                              @NotNull final Process process) {
+    public DefaultBpGraphNode(
+        @NotNull final BpGenericAction genericAction,
+        @NotNull final Map<String, BpGraphNode> nodeMap,
+        @NotNull final VirtualFile virtualFile,
+        @NotNull final Process process
+    ) {
         Validate.notNull(genericAction);
         Validate.notNull(nodeMap);
         Validate.notNull(virtualFile);

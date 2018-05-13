@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ This file is part of "hybris integration" plugin for Intellij IDEA.
+  ~ Copyright (C) 2014-2016 Alexander Bartash <AlexanderBartash@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU Lesser General Public License as
+  ~ published by the Free Software Foundation, either version 3 of the
+  ~ License, or (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public License
+  ~ along with this program. If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="pattern-0" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse" viewBox="0 0 100 100">
+      <path d="M 0 0 L 50 0 L 50 100 L 0 100 Z" style="fill: black;"/>
+    </pattern>
+  </defs>
+  <title>java</title>
+  <g>
+    <title>background</title>
+    <rect fill="none" id="canvas_background" height="402" width="582" y="-1" x="-1"/>
+  </g>
+  <g transform="matrix(1.004018, 0, 0, 1.000942, -0.152103, -0.066042)">
+    <title>Layer 1</title>
+    <g id="svg_1">
+      <g id="svg_2" opacity="0.8">
+        <polygon id="svg_3" opacity="0.7" points="6.0625 0.0624999 2.0625 4.0625 6.0625 4.0625 6.0625 0.0624999" fill="#9aa7b0"/>
+        <rect id="svg_4" opacity="0.4" height="7" width="15" y="9.0625" x="1.0625" fill="#ff0000"/>
+        <polygon id="svg_5" opacity="0.7" points="7.0625 0.0624999 7.0625 4.0625 7.0625 5.0625 6.0625 5.0625 2.0625 5.0625 2.0625 8.0625 13.0625 8.0625 13.0625 0.0624999 7.0625 0.0624999" fill="#9aa7b0"/>
+      </g>
+      <text id="svg_8" y="13.031197" x="5.718775" style="white-space: pre;" text-anchor="start" stroke-width="0" stroke-opacity="null" stroke="null" font-size="24" font-family="Helvetica, Arial, sans-serif" fill-opacity="null" fill="#000000"/>
+      <path d="M 1.802 9.738" opacity="0.7" style="fill: none; stroke: black;"/>
+      <path d="M 2.234 10.131" opacity="0.7" style="fill: none; stroke: black;"/>
+      <path d="M 2.374 10.245 L 3.252 10.245 L 3.252 15.245 L 2.374 15.245 L 2.374 10.245 Z" opacity="0.7" style="fill: rgb(35, 31, 32);"/>
+      <path opacity="0.7" d="M 4.433 10.248 L 5.369 10.248 L 6.354 11.779 L 6.891 12.613 L 8.412 10.248 L 9.348 10.248 L 9.348 15.248 L 8.469 15.248 L 8.469 11.663 L 6.891 14.02 L 6.862 14.02 L 5.551 12.055 L 5.298 11.677 L 5.298 13.329 L 5.298 15.248 L 4.433 15.248 L 4.433 10.248 Z" fill="#231f20"/>
+    </g>
+  </g>
+  <g opacity="0.7" transform="matrix(1, 0, 0, 1, -0.333193, 0.184078)">
+    <path d="M14.92972,10L13.2174,12.44271,15,15H13.98243l-1.2981-1.90706L11.39308,15H10.40351l1.77575-2.54275L10.47378,10h1.01757l1.221,1.81459L13.94015,10h0.98957Z" fill="#231f20"/>
+  </g>
+  <g opacity="0.7" transform="matrix(1, 0, 0, 1, -2.936109, 0.466505)"/>
+</svg>

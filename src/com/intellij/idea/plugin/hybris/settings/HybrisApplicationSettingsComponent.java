@@ -19,6 +19,7 @@
 package com.intellij.idea.plugin.hybris.settings;
 
 import com.intellij.idea.plugin.hybris.common.HybrisConstants;
+import com.intellij.idea.plugin.hybris.statistics.StatsCollector;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
@@ -26,6 +27,8 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.components.StoragePathMacros;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.HashSet;
 
 
 /**
@@ -57,5 +60,11 @@ public class HybrisApplicationSettingsComponent implements PersistentStateCompon
     @Override
     public void loadState(final HybrisApplicationSettings state) {
         XmlSerializerUtil.copyBean(state, this.hybrisApplicationSettings);
+    }
+
+    public void addUsedAction(@NotNull final StatsCollector.ACTIONS action) {
+        final HashSet<StatsCollector.ACTIONS> usedActions = hybrisApplicationSettings.getUsedActions();
+        usedActions.add(action);
+        hybrisApplicationSettings.setUsedActions(usedActions);
     }
 }

@@ -19,23 +19,19 @@
 package com.intellij.idea.plugin.hybris.settings;
 
 import com.intellij.idea.plugin.hybris.common.utils.HybrisI18NBundleUtils;
-import com.intellij.idea.plugin.hybris.project.configurators.impl.DefaultConfiguratorFactory;
-import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.ui.InputValidatorEx;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.AddEditDeleteListPanel;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.components.JBLabel;
-import com.intellij.util.ui.CheckBox;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Created 21:58 29 March 2015
@@ -46,13 +42,13 @@ public class HybrisApplicationSettingsForm {
 
     private JCheckBox enableFoldingCheckBox;
     private JCheckBox useSmartFoldingCheckBox;
-    private JCheckBox limitedSpringConfigCheckBox;
     private JPanel mainPanel;
     private JPanel junkDirectoriesPanel;
     private JLabel impexLabel;
     private JLabel projectImportLabel;
     private JCheckBox groupModulesCheckBox;
     private JTextField groupCustomTextField;
+    private JTextField groupNonHybrisTextField;
     private JTextField groupCustomUnusedTextField;
     private JTextField groupHybrisTextField;
     private JTextField groupHybrisUnusedTextField;
@@ -60,44 +56,52 @@ public class HybrisApplicationSettingsForm {
     private JLabel projectTreeViewSettingsLabel;
     private JCheckBox defaultPlatformInReadOnly;
     private JTextField groupPlatformTextField;
-    private JCheckBox createBackwardCyclicDependenciesForAddOns;
+    private JCheckBox followSymlink;
+    private JPanel typeSystemDiagramStopWords;
+    private JCheckBox scanThroughExternalModule;
     private JLabel typeSystemLabel;
     private JCheckBox validateGeneratedItemsOnSaveCheckBox;
 
-    private JunkListPanel junkListPanel;
+    private MyListPanel junkListPanel;
+    private MyListPanel tsdListPanel;
 
     public void setData(final HybrisApplicationSettings data) {
         enableFoldingCheckBox.setSelected(data.isFoldingEnabled());
         useSmartFoldingCheckBox.setSelected(data.isUseSmartFolding());
-        limitedSpringConfigCheckBox.setSelected(data.isLimitedSpringConfig());
-        junkListPanel.setJunkDirectoryList(data.getJunkDirectoryList());
+        junkListPanel.setMyList(data.getJunkDirectoryList());
+        tsdListPanel.setMyList(data.getTsdStopTypeList());
         groupModulesCheckBox.setSelected(data.isGroupModules());
         groupCustomTextField.setText(data.getGroupCustom());
+        groupNonHybrisTextField.setText(data.getGroupNonHybris());
         groupCustomUnusedTextField.setText(data.getGroupOtherCustom());
         groupHybrisTextField.setText(data.getGroupHybris());
         groupHybrisUnusedTextField.setText(data.getGroupOtherHybris());
         groupPlatformTextField.setText(data.getGroupPlatform());
         hideEmptyMiddleFoldersCheckBox.setSelected(data.isHideEmptyMiddleFolders());
         defaultPlatformInReadOnly.setSelected(data.isDefaultPlatformInReadOnly());
-        createBackwardCyclicDependenciesForAddOns.setSelected(data.isCreateBackwardCyclicDependenciesForAddOns());
+        followSymlink.setSelected(data.isFollowSymlink());
+        scanThroughExternalModule.setSelected(data.isScanThroughExternalModule());
         validateGeneratedItemsOnSaveCheckBox.setSelected(data.isValidateGeneratedItemsOnSave());
     }
 
     public void getData(final HybrisApplicationSettings data) {
         data.setFoldingEnabled(enableFoldingCheckBox.isSelected());
         data.setUseSmartFolding(useSmartFoldingCheckBox.isSelected());
-        data.setLimitedSpringConfig(limitedSpringConfigCheckBox.isSelected());
-        data.setJunkDirectoryList(junkListPanel.getJunkDirectoryList());
+        data.setJunkDirectoryList(junkListPanel.getMyList());
+        data.setTsdStopTypeList(tsdListPanel.getMyList());
         data.setGroupModules(groupModulesCheckBox.isSelected());
         data.setGroupCustom(groupCustomTextField.getText());
         data.setGroupOtherCustom(groupCustomUnusedTextField.getText());
         data.setGroupHybris(groupHybrisTextField.getText());
         data.setGroupOtherHybris(groupHybrisUnusedTextField.getText());
+        data.setGroupNonHybris(groupNonHybrisTextField.getText());
         data.setGroupPlatform(groupPlatformTextField.getText());
         data.setHideEmptyMiddleFolders(hideEmptyMiddleFoldersCheckBox.isSelected());
         data.setDefaultPlatformInReadOnly(defaultPlatformInReadOnly.isSelected());
-        data.setCreateBackwardCyclicDependenciesForAddOns(createBackwardCyclicDependenciesForAddOns.isSelected());
+        data.setFollowSymlink(followSymlink.isSelected());
+        data.setScanThroughExternalModule(scanThroughExternalModule.isSelected());
         data.setValidateGeneratedItemsOnSave(validateGeneratedItemsOnSaveCheckBox.isSelected());
+
     }
 
     public boolean isModified(final HybrisApplicationSettings data) {
@@ -107,28 +111,31 @@ public class HybrisApplicationSettingsForm {
         if (useSmartFoldingCheckBox.isSelected() != data.isUseSmartFolding()) {
             return true;
         }
-        if (limitedSpringConfigCheckBox.isSelected() != data.isLimitedSpringConfig()) {
+        if (!junkListPanel.getMyList().equals(data.getJunkDirectoryList())) {
             return true;
         }
-        if (!junkListPanel.getJunkDirectoryList().equals(data.getJunkDirectoryList())) {
+        if (!tsdListPanel.getMyList().equals(data.getTsdStopTypeList())) {
             return true;
         }
         if (groupModulesCheckBox.isSelected() != data.isGroupModules()) {
             return true;
         }
-        if (!StringUtil.equals(groupCustomTextField.getText(),data.getGroupCustom())) {
+        if (!StringUtil.equals(groupCustomTextField.getText(), data.getGroupCustom())) {
             return true;
         }
-        if (!StringUtil.equals(groupCustomUnusedTextField.getText(),data.getGroupOtherCustom())) {
+        if (!StringUtil.equals(groupCustomUnusedTextField.getText(), data.getGroupOtherCustom())) {
             return true;
         }
-        if (!StringUtil.equals(groupHybrisTextField.getText(),data.getGroupHybris())) {
+        if (!StringUtil.equals(groupHybrisTextField.getText(), data.getGroupHybris())) {
             return true;
         }
-        if (!StringUtil.equals(groupHybrisUnusedTextField.getText(),data.getGroupOtherHybris())) {
+        if (!StringUtil.equals(groupHybrisUnusedTextField.getText(), data.getGroupOtherHybris())) {
             return true;
         }
-        if (!StringUtil.equals(groupPlatformTextField.getText(),data.getGroupPlatform())) {
+        if (!StringUtil.equals(groupPlatformTextField.getText(), data.getGroupPlatform())) {
+            return true;
+        }
+        if (!StringUtil.equals(groupNonHybrisTextField.getText(), data.getGroupNonHybris())) {
             return true;
         }
         if (hideEmptyMiddleFoldersCheckBox.isSelected() != data.isHideEmptyMiddleFolders()) {
@@ -137,7 +144,10 @@ public class HybrisApplicationSettingsForm {
         if (defaultPlatformInReadOnly.isSelected() != data.isDefaultPlatformInReadOnly()) {
             return true;
         }
-        if (createBackwardCyclicDependenciesForAddOns.isSelected() != data.isCreateBackwardCyclicDependenciesForAddOns()) {
+        if (scanThroughExternalModule.isSelected() != data.isScanThroughExternalModule()) {
+            return true;
+        }
+        if (followSymlink.isSelected() != data.isFollowSymlink()) {
             return true;
         }
         if (validateGeneratedItemsOnSaveCheckBox.isSelected() != data.isValidateGeneratedItemsOnSave()) {
@@ -151,48 +161,53 @@ public class HybrisApplicationSettingsForm {
     }
 
     private void createUIComponents() {
-        final int baselineVersion = ApplicationInfo.getInstance().getBuild().getBaselineVersion();
-        final boolean boxVisible = baselineVersion < DefaultConfiguratorFactory.IDEA_2016_2_BASELINE_VERSION;
-        limitedSpringConfigCheckBox = new JCheckBox();
-        limitedSpringConfigCheckBox.setVisible(boxVisible);
         impexLabel = new JBLabel();
-        impexLabel.setBorder(IdeBorderFactory.createTitledBorder(HybrisI18NBundleUtils.message("hybris.import.settings.impex.title"), false));
+        impexLabel.setBorder(IdeBorderFactory.createTitledBorder(HybrisI18NBundleUtils.message(
+            "hybris.import.settings.impex.title"), false));
         projectImportLabel = new JBLabel();
-        projectImportLabel.setBorder(IdeBorderFactory.createTitledBorder(HybrisI18NBundleUtils.message("hybris.import.settings.project.title")));
-        junkListPanel = new JunkListPanel("hybris.import.settings.junk.directory.name", new ArrayList<String>());
+        projectImportLabel.setBorder(IdeBorderFactory.createTitledBorder(HybrisI18NBundleUtils.message(
+            "hybris.import.settings.project.title")));
+        junkListPanel = new MyListPanel("hybris.import.settings.junk.directory.name", "hybris.import.settings.junk.directory.popup.add.title", "hybris.import.settings.junk.directory.popup.add.text", "hybris.import.settings.junk.directory.popup.edit.title", "hybris.import.settings.junk.directory.popup.edit.text", new ArrayList<String>());
         junkDirectoriesPanel = junkListPanel;
+        tsdListPanel = new MyListPanel("hybris.import.settings.tsv.diagram.name", "hybris.import.settings.tsv.diagram.popup.add.title", "hybris.import.settings.tsv.diagram.popup.add.text", "hybris.import.settings.tsv.diagram.popup.edit.title", "hybris.import.settings.tsv.diagram.popup.edit.text", new ArrayList<String>());
+        typeSystemDiagramStopWords = tsdListPanel;
 
         projectTreeViewSettingsLabel = new JBLabel();
-        projectTreeViewSettingsLabel.setBorder(IdeBorderFactory.createTitledBorder(HybrisI18NBundleUtils.message("hybris.project.view.tree.settings")));
-
+        projectTreeViewSettingsLabel.setBorder(IdeBorderFactory.createTitledBorder(HybrisI18NBundleUtils.message(
+            "hybris.project.view.tree.settings")));
         typeSystemLabel = new JBLabel();
         typeSystemLabel.setBorder(IdeBorderFactory.createTitledBorder(HybrisI18NBundleUtils.message("hybris.import.settings.type.system.section")));
     }
 
     public void createComponent() {
-        groupModulesCheckBox.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(final ChangeEvent changeEvent) {
-                groupCustomTextField.setEnabled(groupModulesCheckBox.isSelected());
-                groupCustomUnusedTextField.setEnabled(groupModulesCheckBox.isSelected());
-                groupHybrisTextField.setEnabled(groupModulesCheckBox.isSelected());
-                groupHybrisUnusedTextField.setEnabled(groupModulesCheckBox.isSelected());
-                groupPlatformTextField.setEnabled(groupModulesCheckBox.isSelected());
-            }
+        groupModulesCheckBox.addChangeListener(changeEvent -> {
+            groupCustomTextField.setEnabled(groupModulesCheckBox.isSelected());
+            groupCustomUnusedTextField.setEnabled(groupModulesCheckBox.isSelected());
+            groupHybrisTextField.setEnabled(groupModulesCheckBox.isSelected());
+            groupHybrisUnusedTextField.setEnabled(groupModulesCheckBox.isSelected());
+            groupPlatformTextField.setEnabled(groupModulesCheckBox.isSelected());
+            groupNonHybrisTextField.setEnabled(groupModulesCheckBox.isSelected());
         });
     }
 
-    private static class JunkListPanel extends AddEditDeleteListPanel<String> {
-
+    private static class MyListPanel extends AddEditDeleteListPanel<String> {
         private static final long serialVersionUID = -6339262026248471671L;
+        private final String addTitle;
+        private final String addText;
+        private final String editTitle;
+        private final String editText;
 
-        public JunkListPanel(final String title, final java.util.List<String> initialList) {
+        public MyListPanel(final String title, final String addTitle, final String addText, final String editTitle, final String editText, final List<String> initialList) {
             super(HybrisI18NBundleUtils.message(title), initialList);
+            this.addTitle = addTitle;
+            this.addText = addText;
+            this.editTitle = editTitle;
+            this.editText = editText;
         }
 
-        public void setJunkDirectoryList(@Nullable java.util.List<String> itemList) {
+        public void setMyList(@Nullable java.util.List<String> itemList) {
             myListModel.clear();
-            for (String itemToAdd: itemList) {
+            for (String itemToAdd : itemList) {
                 super.addElement(itemToAdd);
             }
         }
@@ -200,45 +215,66 @@ public class HybrisApplicationSettingsForm {
         @Nullable
         @Override
         protected String findItemToAdd() {
-            return showEditDialog("", "hybris.import.settings.junk.directory.popup.add.title", "hybris.import.settings.junk.directory.popup.add.text");
+            return showEditDialog(
+                "",
+                HybrisI18NBundleUtils.message(addTitle),
+                HybrisI18NBundleUtils.message(addText)
+            );
         }
 
         @Nullable
         @Override
         protected String editSelectedItem(@NotNull final String item) {
-            return showEditDialog(item, "hybris.import.settings.junk.directory.popup.edit.title", "hybris.import.settings.junk.directory.popup.edit.text");
+            return showEditDialog(
+                item,
+                HybrisI18NBundleUtils.message(editTitle),
+                HybrisI18NBundleUtils.message(editText)
+            );
         }
 
         @Nullable
-        private String showEditDialog(@NotNull final String initialValue, @NotNull final String title, @NotNull final String message) {
-            return Messages.showInputDialog(this, HybrisI18NBundleUtils.message(message), HybrisI18NBundleUtils.message(title), Messages.getQuestionIcon(), initialValue, new InputValidatorEx() {
-                @Override
-                public boolean checkInput(@NotNull String inputString) {
-                    return !StringUtil.isEmpty(inputString);
-                }
+        private String showEditDialog(
+            @NotNull final String initialValue,
+            @NotNull final String title,
+            @NotNull final String message
+        ) {
+            return Messages.showInputDialog(
+                this,
+                HybrisI18NBundleUtils.message(message),
+                HybrisI18NBundleUtils.message(title),
+                Messages.getQuestionIcon(),
+                initialValue,
+                new InputValidatorEx() {
 
-                @Override
-                public boolean canClose(@NotNull String inputString) {
-                    return !StringUtil.isEmpty(inputString) && (!myListModel.contains(inputString) || initialValue.equals(inputString));
-                }
+                    @Override
+                    public boolean checkInput(@NotNull String inputString) {
+                        return !StringUtil.isEmpty(inputString);
+                    }
 
-                @Nullable
-                @Override
-                public String getErrorText(@NotNull String inputString) {
-                    if (!checkInput(inputString)) {
-                        return "directory name string cannot be empty";
+                    @Override
+                    public boolean canClose(@NotNull String inputString) {
+                        return !StringUtil.isEmpty(inputString) && (!myListModel.contains(inputString) || initialValue.equals(
+                            inputString));
                     }
-                    if (!canClose(inputString)) {
-                        return "duplicities are not allowed (nor make any sense)";
+
+                    @Nullable
+                    @Override
+                    public String getErrorText(@NotNull String inputString) {
+                        if (!checkInput(inputString)) {
+                            return "directory name string cannot be empty";
+                        }
+                        if (!canClose(inputString)) {
+                            return "duplicities are not allowed (nor make any sense)";
+                        }
+                        return null;
                     }
-                    return null;
                 }
-            });
+            );
         }
 
         @NotNull
-        public java.util.List<String> getJunkDirectoryList() {
-            return (java.util.List<String>) Collections.list(myListModel.elements());
+        public java.util.List<String> getMyList() {
+            return Collections.list(myListModel.elements());
         }
     }
 }

@@ -46,6 +46,28 @@ public final class CommonPsiUtils {
         throw new IllegalAccessException("Should never be accessed.");
     }
 
+
+    @Nullable
+    @Contract("null, _ -> null")
+    public static <T extends PsiElement> T getNextSiblingOfAnyType(
+        @Nullable final PsiElement sibling,
+        @NotNull final Class<?>... aClasses
+    ) {
+        if (sibling == null) {
+            return null;
+        }
+        for (PsiElement child = sibling.getNextSibling(); child != null; child = child.getNextSibling()) {
+            for (final Class<?> aClass : aClasses) {
+                if (aClass.isInstance(child)) {
+                    //noinspection unchecked
+                    return (T) child;
+                }
+            }
+        }
+        return null;
+    }
+
+
     @Nullable
     @Contract(pure = true)
     public static IElementType getNullSafeElementType(@Nullable final PsiElement element) {

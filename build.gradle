@@ -1,0 +1,64 @@
+/*
+ * This file is part of "hybris integration" plugin for Intellij IDEA.
+ * Copyright (C) 2014-2016 Alexander Bartash <AlexanderBartash@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+buildscript {
+    repositories {
+        mavenCentral()
+
+        maven {
+            setUrl("https://plugins.gradle.org/m2/")
+        }
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "gradle.plugin.org.jetbrains.intellij.plugins:gradle-intellij-plugin:$gradleIntellijPluginVersion"
+    }
+}
+
+apply from: "community.gradle"
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    //compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    //testCompile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
+    //testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
+
+    compile "commons-codec:commons-codec:1.11"
+    compile "commons-io:commons-io:2.6"
+    compile "com.google.guava:guava:24.1-jre"
+    compile "com.google.code.findbugs:jsr305:3.0.2"
+    compile "org.apache.commons:commons-lang3:3.7"
+    compile "org.apache.commons:commons-collections4:4.1"
+    compile "org.apache.maven:maven-model:3.5.3"
+    compile "com.wutka:dtdparser:1.21"
+
+    compile "com.github.ben-manes.caffeine:caffeine:2.6.2"
+    compile "org.jsoup:jsoup:1.11.3"
+
+    testCompile "org.mockito:mockito-core:2.18.0"
+
+    compile project("common")
+    compile project("rt-ant")
+}
+
+task copyPsiViewer(type: Copy) {
+    from "$projectDir/PsiViewer.jar"
+    into "$buildDir/idea-sandbox/plugins/"
+}
+
+prepareSandbox.finalizedBy copyPsiViewer

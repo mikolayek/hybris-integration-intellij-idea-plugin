@@ -21,12 +21,13 @@ package com.intellij.idea.plugin.hybris.project.descriptors;
 import com.google.common.collect.Sets;
 import com.intellij.idea.plugin.hybris.common.HybrisConstants;
 import com.intellij.idea.plugin.hybris.project.exceptions.HybrisConfigurationException;
-import com.intellij.openapi.roots.ModifiableModelsProvider;
+import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.roots.ui.configuration.libraryEditor.ExistingLibraryEditor;
 import com.intellij.openapi.roots.ui.configuration.projectRoot.LibrariesModifiableModel;
+import com.intellij.openapi.vfs.JarFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
@@ -66,9 +67,7 @@ public class PlatformHybrisModuleDescriptor extends AbstractHybrisModuleDescript
     public Set<String> getRequiredExtensionNames() {
         final File extDirectory = new File(this.getRootDirectory(), HybrisConstants.PLATFORM_EXTENSIONS_DIRECTORY_NAME);
 
-        final Set<String> platformDependencies = Sets.newHashSet(
-            HybrisConstants.CONFIG_EXTENSION_NAME
-        );
+        final Set<String> platformDependencies = Sets.newHashSet();
 
         if (extDirectory.isDirectory()) {
             final File[] files = extDirectory.listFiles((FileFilter) DirectoryFileFilter.DIRECTORY);
@@ -88,9 +87,17 @@ public class PlatformHybrisModuleDescriptor extends AbstractHybrisModuleDescript
     public List<JavaLibraryDescriptor> getLibraryDescriptors() {
         return Collections.singletonList(
             new DefaultJavaLibraryDescriptor(
-                new File(this.getRootDirectory(), HybrisConstants.PLATFORM_DB_DRIVER), true, false
+                getDbDriversDirectory(), true, false
             )
         );
+    }
+
+    private File getDbDriversDirectory() {
+        final File dbDriversDirectory = getRootProjectDescriptor().getExternalDbDriversDirectory();
+        if (dbDriversDirectory != null) {
+            return dbDriversDirectory;
+        }
+        return new File(this.getRootDirectory(), HybrisConstants.PLATFORM_DB_DRIVER);
     }
 
     @Override
@@ -98,16 +105,16 @@ public class PlatformHybrisModuleDescriptor extends AbstractHybrisModuleDescript
         return true;
     }
 
-    public Library createBootstrapLib(
+    public void createBootstrapLib(
         @Nullable final VirtualFile sourceCodeRoot,
-        @NotNull final ModifiableModelsProvider modifiableModelsProvider
+        @NotNull final IdeModifiableModelsProvider modifiableModelsProvider
     ) {
 
         final Collection<File> libraryDirectories = getLibraryDirectories();
         final File bootStrapSrc = new File(getRootDirectory(), HybrisConstants.PL_BOOTSTRAP_GEN_SRC_DIRECTORY);
 
         final LibraryTable.ModifiableModel libraryTableModifiableModel = modifiableModelsProvider
-            .getLibraryTableModifiableModel(getRootProjectDescriptor().getProject());
+            .getModifiableProjectLibrariesModel();
 
         Library library = libraryTableModifiableModel.getLibraryByName(HybrisConstants.PLATFORM_LIBRARY_GROUP);
         if (null == library) {
@@ -124,7 +131,11 @@ public class PlatformHybrisModuleDescriptor extends AbstractHybrisModuleDescript
                 );
 
                 if (null != sourceCodeRoot) {
-                    existingLibraryEditor.addJarDirectory(sourceCodeRoot, true, OrderRootType.SOURCES);
+                    if (sourceCodeRoot.getFileSystem() instanceof JarFileSystem) {
+                        existingLibraryEditor.addJarDirectory(sourceCodeRoot, true, OrderRootType.SOURCES);
+                    } else {
+                        existingLibraryEditor.addRoot(sourceCodeRoot, OrderRootType.SOURCES);
+                    }
                 }
             }
 
@@ -133,16 +144,14 @@ public class PlatformHybrisModuleDescriptor extends AbstractHybrisModuleDescript
             );
 
         } else {
-            final Library.ModifiableModel libraryModifiableModel = library.getModifiableModel();
-            for (final File libRoot : libraryDirectories) {
-                libraryModifiableModel.addJarDirectory(VfsUtil.getUrlForLibraryRoot(libRoot), true);
-            }
+            final Library.ModifiableModel model = modifiableModelsProvider.getModifiableLibraryModel(library);
 
-            libraryModifiableModel.addRoot(VfsUtil.getUrlForLibraryRoot(bootStrapSrc), OrderRootType.SOURCES);
-            libraryModifiableModel.commit();
+            for (final File libRoot : libraryDirectories) {
+                model.addJarDirectory(VfsUtil.getUrlForLibraryRoot(libRoot), true);
+            }
+            model.addRoot(VfsUtil.getUrlForLibraryRoot(bootStrapSrc), OrderRootType.SOURCES);
         }
 
-        return library;
     }
 
     private Collection<File> getLibraryDirectories() {
@@ -171,15 +180,24 @@ public class PlatformHybrisModuleDescriptor extends AbstractHybrisModuleDescript
             }
         }
 
-        libraryDirectories.add(new File(getRootDirectory(), HybrisConstants.PL_BOOTSTRAP_LIB_DIRECTORY));
-        libraryDirectories.add(new File(getRootDirectory(), HybrisConstants.PL_TOMCAT_BIN_DIRECTORY));
-        libraryDirectories.add(new File(getRootDirectory(), HybrisConstants.PL_TOMCAT_LIB_DIRECTORY));
+        addLibraryDirectories(libraryDirectories, new File(getRootDirectory(), HybrisConstants.PL_BOOTSTRAP_LIB_DIRECTORY));
+
+        addLibraryDirectories(libraryDirectories, new File(getRootDirectory(), HybrisConstants.PL_TOMCAT_BIN_DIRECTORY));
+        addLibraryDirectories(libraryDirectories, new File(getRootDirectory(), HybrisConstants.PL_TOMCAT_6_BIN_DIRECTORY));
+        addLibraryDirectories(libraryDirectories, new File(getRootDirectory(), HybrisConstants.PL_TOMCAT_LIB_DIRECTORY));
+        addLibraryDirectories(libraryDirectories, new File(getRootDirectory(), HybrisConstants.PL_TOMCAT_6_LIB_DIRECTORY));
 
         return libraryDirectories;
     }
 
+    private void addLibraryDirectories(final Collection<File> libraryDirectories, final File file) {
+        if (file.exists()) {
+            libraryDirectories.add(file);
+        }
+    }
+
     @Override
-    public DescriptorType getDescriptorType() {
-        return DescriptorType.PLATFORM;
+    public HybrisModuleDescriptorType getDescriptorType() {
+        return HybrisModuleDescriptorType.PLATFORM;
     }
 }

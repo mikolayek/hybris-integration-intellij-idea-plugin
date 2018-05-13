@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -41,7 +42,7 @@ public class EnumTypeConverter extends TypeSystemConverterBase<EnumType> {
         @NotNull final String name, @NotNull final ConvertContext context, @NotNull final TSMetaModel meta
     ) {
         return Optional.ofNullable(meta.findMetaEnumByName(name))
-                       .map(TSMetaEnum::getDom)
+                       .map(TSMetaEnum::retrieveDom)
                        .orElse(null);
     }
 
@@ -50,7 +51,8 @@ public class EnumTypeConverter extends TypeSystemConverterBase<EnumType> {
         @NotNull final ConvertContext context, @NotNull final TSMetaModel meta
     ) {
         return meta.getMetaEnumsStream()
-                   .map(TSMetaEnum::getDom)
+                   .map(TSMetaEnum::retrieveDom)
+                   .filter(Objects::nonNull)
                    .collect(Collectors.toList());
     }
 

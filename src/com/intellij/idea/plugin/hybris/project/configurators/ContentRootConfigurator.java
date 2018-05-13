@@ -29,7 +29,9 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface ContentRootConfigurator {
 
-    void configure(@NotNull ModifiableRootModel modifiableRootModel,
-                   @NotNull HybrisModuleDescriptor moduleDescriptor);
+    void configure(
+        @NotNull ModifiableRootModel modifiableRootModel,
+        @NotNull HybrisModuleDescriptor moduleDescriptor
+    );
 
 }

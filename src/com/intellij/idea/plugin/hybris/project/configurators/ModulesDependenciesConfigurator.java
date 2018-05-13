@@ -19,7 +19,7 @@
 package com.intellij.idea.plugin.hybris.project.configurators;
 
 import com.intellij.idea.plugin.hybris.project.descriptors.HybrisProjectDescriptor;
-import com.intellij.openapi.module.ModifiableModuleModel;
+import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -29,6 +29,8 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface ModulesDependenciesConfigurator {
 
-    void configure(@NotNull HybrisProjectDescriptor hybrisProjectDescriptor,
-                   @NotNull ModifiableModuleModel rootProjectModifiableModuleModel);
+    void configure(
+        @NotNull HybrisProjectDescriptor hybrisProjectDescriptor,
+        @NotNull IdeModifiableModelsProvider modifiableModelsProvider
+    );
 }

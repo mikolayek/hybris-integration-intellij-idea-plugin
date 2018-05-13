@@ -3,8 +3,8 @@
  * Copyright (C) 2014-2016 Alexander Bartash <AlexanderBartash@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
+ * it under the terms of the GNU Lesser General Public License as 
+ * published by the Free Software Foundation, either version 3 of the 
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -22,12 +22,13 @@ import com.intellij.formatting.Alignment;
 import com.intellij.idea.plugin.hybris.impex.psi.ImpexFile;
 import com.intellij.idea.plugin.hybris.impex.psi.ImpexTypes;
 import com.intellij.idea.plugin.hybris.impex.psi.ImpexValueGroup;
+import com.intellij.idea.plugin.hybris.impex.utils.ImpexPsiUtils;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.util.PsiTreeUtil;
-import com.sun.istack.internal.Nullable;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,8 +40,8 @@ import java.util.List;
  */
 public class ColumnsAlignmentStrategy implements AlignmentStrategy {
 
-    private final List<Alignment> alignments = new ArrayList<Alignment>();
-    private int columnNumber = 0;
+    protected final List<Alignment> alignments = new ArrayList<>();
+    protected int columnNumber = 0;
 
     public ColumnsAlignmentStrategy() {
     }
@@ -76,37 +77,51 @@ public class ColumnsAlignmentStrategy implements AlignmentStrategy {
         } else {
             if (isNewLine(currentNode)) {
                 columnNumber = 0;
-            } else if (isHeaderLine(currentNode)) {
+            }
+
+            if (isHeaderLine(currentNode)) {
+                alignments.clear();
+            }
+            
+            if (ImpexPsiUtils.isUserRightsMacros(currentNode.getPsi())) {
                 alignments.clear();
             }
         }
     }
 
     @Contract(pure = true)
-    private boolean isStartOfTheFile(@Nullable final ASTNode currentNode) {
+    protected boolean isStartOfTheFile(@Nullable final ASTNode currentNode) {
         return null != currentNode && currentNode.getPsi() instanceof ImpexFile;
     }
 
     @Contract(pure = true)
-    private boolean isNewLine(@Nullable final ASTNode currentNode) {
+    protected boolean isNewLine(@Nullable final ASTNode currentNode) {
         return null != currentNode
-                && ImpexTypes.VALUE_GROUP == currentNode.getElementType()
-                && isStartOfValueLine(currentNode);
+               && ImpexTypes.VALUE_GROUP == currentNode.getElementType()
+               && isStartOfValueLine(currentNode);
     }
 
     @Contract(pure = true)
-    private boolean isStartOfValueLine(@Nullable final ASTNode currentNode) {
-        return null != currentNode
-                && PsiTreeUtil.findChildOfType(currentNode.getTreeParent().getPsi(), ImpexValueGroup.class) == currentNode.getPsi();
+    protected boolean isStartOfValueLine(@Nullable final ASTNode currentNode) {
+        if (null == currentNode) {
+            return false;
+        }
+
+        final ImpexValueGroup child = PsiTreeUtil.findChildOfType(
+            currentNode.getTreeParent().getPsi(),
+            ImpexValueGroup.class
+        );
+
+        return child == currentNode.getPsi();
     }
 
     @Contract(pure = true)
-    private boolean isNewColumn(@Nullable final ASTNode currentNode) {
+    protected boolean isNewColumn(@Nullable final ASTNode currentNode) {
         return null != currentNode && ImpexTypes.VALUE_GROUP == currentNode.getElementType();
     }
 
     @Contract(pure = true)
-    private boolean isHeaderLine(@Nullable final ASTNode currentNode) {
+    protected boolean isHeaderLine(@Nullable final ASTNode currentNode) {
         return null != currentNode && ImpexTypes.HEADER_LINE == currentNode.getElementType();
     }
 }

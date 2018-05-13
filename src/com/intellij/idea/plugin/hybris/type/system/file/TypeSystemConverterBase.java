@@ -20,7 +20,7 @@ package com.intellij.idea.plugin.hybris.type.system.file;
 
 import com.intellij.idea.plugin.hybris.type.system.meta.TSMetaModel;
 import com.intellij.idea.plugin.hybris.type.system.meta.TSMetaModelAccess;
-import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.xml.XmlAttributeValue;
 import com.intellij.util.xml.ConvertContext;
@@ -85,24 +85,18 @@ public abstract class TypeSystemConverterBase<DOM> extends ResolvingConverter<DO
     public final DOM fromString(
         @Nullable @NonNls final String s, final ConvertContext context
     ) {
-        if (s == null) {
+        if (StringUtil.isEmpty(s)) {
             return null;
         }
-        return searchForName(s, context, getTypeSystemMeta(context));
+        return searchForName(s, context, TSMetaModelAccess.getInstance(context.getProject()).
+            getTypeSystemMeta(context.getFile()));
     }
 
     @NotNull
     @Override
     public final Collection<? extends DOM> getVariants(final ConvertContext context) {
-        return searchAll(context, getTypeSystemMeta(context));
-    }
-
-    protected final TSMetaModel getTypeSystemMeta(@NotNull final ConvertContext convertContext) {
-        return getTypeSystemMeta(convertContext.getProject());
-    }
-
-    protected final TSMetaModel getTypeSystemMeta(@NotNull final Project project) {
-        return TSMetaModelAccess.getInstance(project).getTypeSystemMeta();
+        return searchAll(context, TSMetaModelAccess.getInstance(context.getProject()).
+            getTypeSystemMeta(context.getFile()));
     }
 
     protected static <D extends DomElement> XmlAttributeValue navigateToValue(

@@ -59,4 +59,7 @@ public interface XmlRule {
 
     @Nullable
     String getTestXPath();
+
+    boolean isFailOnTestQuery();
+
 }

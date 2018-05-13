@@ -30,7 +30,14 @@ public interface TSMetaProperty {
     @Nullable
     String getName();
 
-    @NotNull
-    Attribute getDom();
+    @Nullable
+    Attribute retrieveDom();
 
+    boolean isDeprecated();
+
+    @Nullable
+    String getType();
+
+    @NotNull
+    TSMetaClass getMetaClass();
 }

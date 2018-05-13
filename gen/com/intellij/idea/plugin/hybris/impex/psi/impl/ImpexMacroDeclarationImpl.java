@@ -26,4 +26,16 @@ public class ImpexMacroDeclarationImpl extends ASTWrapperPsiElement implements I
     else super.accept(visitor);
   }
 
+  @Override
+  @NotNull
+  public ImpexMacroNameDec getMacroNameDec() {
+    return findNotNullChildByClass(ImpexMacroNameDec.class);
+  }
+
+  @Override
+  @NotNull
+  public List<ImpexMacroUsageDec> getMacroUsageDecList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, ImpexMacroUsageDec.class);
+  }
+
 }

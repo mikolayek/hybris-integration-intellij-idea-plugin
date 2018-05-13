@@ -51,7 +51,7 @@ public class BpDiagramColorManagerIml extends BpDiagramColorManager {
             );
         }
 
-        final String timeoutLabel = HybrisI18NBundleUtils.message("hybris.business.process.timeout.after");
+        final String timeoutLabel = HybrisI18NBundleUtils.message("hybris.business.process.timeout");
 
         if (StringUtils.startsWith(edgeType, timeoutLabel)) {
             return new JBColor(

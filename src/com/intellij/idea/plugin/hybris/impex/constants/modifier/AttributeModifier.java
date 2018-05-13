@@ -22,8 +22,8 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
-
 import org.jetbrains.annotations.Nullable;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,25 +37,25 @@ import static com.intellij.idea.plugin.hybris.impex.constants.ImpexConstants.Mod
  * https://wiki.hybris.com/pages/viewpage.action?title=ImpEx+Syntax&spaceKey=release5
  */
 public enum AttributeModifier implements ImpexModifier {
-    UNIQUE                ("unique"               , BOOLEAN),
-    ALLOW_NULL            ("allownull"            , BOOLEAN),
-    FORCE_WRITE           ("forceWrite"           , BOOLEAN),
-    IGNORE_KEY_CASE       ("ignoreKeyCase"        , BOOLEAN),
-    IGNORE_NULL           ("ignorenull"           , BOOLEAN),
-    VIRTUAL               ("virtual"              , BOOLEAN),
-    MODE                  ("mode"                 , ModeModifierValue.values()),
-    ALIAS                 ("alias"                , NONE),
-    CELL_DECORATOR        ("cellDecorator"        , NONE),
-    COLLECTION_DELIMITER  ("collection-delimiter" , NONE),
-    DATE_FORMAT           ("dateformat"           , NONE),
-    DEFAULT               ("default"              , NONE),
-    KEY_2_VALUE_DELIMITER ("key2value-delimiter"  , NONE),
-    LANG                  ("lang"                 , NONE),
-    MAP_DELIMITER         ("map-delimiter"        , NONE),
-    NUMBER_FORMAT         ("numberformat"         , NONE),
-    PATH_DELIMITER        ("path-delimiter"       , NONE),
-    POS                   ("pos"                  , NONE),
-    TRANSLATOR            ("translator"           , NONE);
+    UNIQUE("unique", BOOLEAN),
+    ALLOW_NULL("allownull", BOOLEAN),
+    FORCE_WRITE("forceWrite", BOOLEAN),
+    IGNORE_KEY_CASE("ignoreKeyCase", BOOLEAN),
+    IGNORE_NULL("ignorenull", BOOLEAN),
+    VIRTUAL("virtual", BOOLEAN),
+    MODE("mode", ModeModifierValue.values()),
+    ALIAS("alias", NONE),
+    CELL_DECORATOR("cellDecorator", NONE),
+    COLLECTION_DELIMITER("collection-delimiter", NONE),
+    DATE_FORMAT("dateformat", NONE),
+    DEFAULT("default", NONE),
+    KEY_2_VALUE_DELIMITER("key2value-delimiter", NONE),
+    LANG("lang", NONE),
+    MAP_DELIMITER("map-delimiter", NONE),
+    NUMBER_FORMAT("numberformat", NONE),
+    PATH_DELIMITER("path-delimiter", NONE),
+    POS("pos", NONE),
+    TRANSLATOR("translator", NONE);
 
     private final String modifierName;
     private final List<String> modifierValues;
@@ -77,8 +77,10 @@ public enum AttributeModifier implements ImpexModifier {
         return ELEMENTS_MAP.get(modifierName);
     }
 
-    AttributeModifier(@NotNull final String modifierName,
-                      @NotNull final ImpexModifierValue[] modifierValues) {
+    AttributeModifier(
+        @NotNull final String modifierName,
+        @NotNull final ImpexModifierValue[] modifierValues
+    ) {
         Validate.notEmpty(modifierName);
         Validate.notNull(modifierValues);
 

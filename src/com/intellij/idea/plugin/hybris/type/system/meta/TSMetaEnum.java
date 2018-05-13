@@ -19,9 +19,16 @@
 package com.intellij.idea.plugin.hybris.type.system.meta;
 
 import com.intellij.idea.plugin.hybris.type.system.model.EnumType;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Collection;
+import java.util.stream.Stream;
 
 public interface TSMetaEnum extends TSMetaClassifier<EnumType> {
 
-    // literals?
+    @NotNull
+    Stream<? extends TSMetaEnumValue> getValuesStream();
 
+    @NotNull
+    Collection<? extends TSMetaEnumValue> findValueByName(@NotNull String name);
 }

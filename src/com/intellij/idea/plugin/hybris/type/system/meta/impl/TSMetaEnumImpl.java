@@ -19,10 +19,19 @@
 package com.intellij.idea.plugin.hybris.type.system.meta.impl;
 
 import com.intellij.idea.plugin.hybris.type.system.meta.TSMetaEnum;
+import com.intellij.idea.plugin.hybris.type.system.meta.TSMetaEnumValue;
+import com.intellij.idea.plugin.hybris.type.system.meta.impl.CaseInsensitive.NoCaseMultiMap;
 import com.intellij.idea.plugin.hybris.type.system.model.EnumType;
+import com.intellij.idea.plugin.hybris.type.system.model.EnumValue;
+import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
+import java.util.stream.Stream;
+
 public class TSMetaEnumImpl extends TSMetaEntityImpl<EnumType> implements TSMetaEnum {
+
+    private final NoCaseMultiMap<TSMetaEnumValueImpl> name2ValueObj = new NoCaseMultiMap<>();
 
     public TSMetaEnumImpl(final String name, final EnumType dom) {
         super(name, dom);
@@ -32,6 +41,24 @@ public class TSMetaEnumImpl extends TSMetaEntityImpl<EnumType> implements TSMeta
         return domEnumType.getCode().getValue();
     }
 
-    //literals code will be added here when we find usage for it
+    @NotNull
+    @Override
+    public Stream<? extends TSMetaEnumValue> getValuesStream() {
+        return ContainerUtil.newArrayList(name2ValueObj.values()).stream();
+    }
+
+    @NotNull
+    @Override
+    public Collection<? extends TSMetaEnumValue> findValueByName(@NotNull final String name) {
+        return ContainerUtil.newArrayList(name2ValueObj.get(name));
+    }
+
+    void createValue(final @NotNull EnumValue domEnumValue) {
+        final TSMetaEnumValueImpl result = new TSMetaEnumValueImpl(this, domEnumValue);
+
+        if (result.getName() != null) {
+            name2ValueObj.putValue(result.getName(), result);
+        }
+    }
 
 }

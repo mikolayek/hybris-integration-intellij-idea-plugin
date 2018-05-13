@@ -33,8 +33,9 @@ import java.util.Set;
  */
 public class ExtHybrisModuleDescriptor extends RegularHybrisModuleDescriptor {
 
-    public ExtHybrisModuleDescriptor(@NotNull final File moduleRootDirectory,
-                                     @NotNull final HybrisProjectDescriptor rootProjectDescriptor
+    public ExtHybrisModuleDescriptor(
+        @NotNull final File moduleRootDirectory,
+        @NotNull final HybrisProjectDescriptor rootProjectDescriptor
     ) throws HybrisConfigurationException {
         super(moduleRootDirectory, rootProjectDescriptor);
     }
@@ -49,7 +50,7 @@ public class ExtHybrisModuleDescriptor extends RegularHybrisModuleDescriptor {
     }
 
     @Override
-    public DescriptorType getDescriptorType() {
-        return DescriptorType.EXT;
+    public HybrisModuleDescriptorType getDescriptorType() {
+        return HybrisModuleDescriptorType.EXT;
     }
 }

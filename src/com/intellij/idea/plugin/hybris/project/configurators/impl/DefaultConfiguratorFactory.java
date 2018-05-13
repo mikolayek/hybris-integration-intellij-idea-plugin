@@ -18,25 +18,32 @@
 
 package com.intellij.idea.plugin.hybris.project.configurators.impl;
 
+import com.intellij.idea.plugin.hybris.project.configurators.AntConfigurator;
 import com.intellij.idea.plugin.hybris.project.configurators.CompilerOutputPathsConfigurator;
 import com.intellij.idea.plugin.hybris.project.configurators.ConfiguratorFactory;
 import com.intellij.idea.plugin.hybris.project.configurators.ContentRootConfigurator;
+import com.intellij.idea.plugin.hybris.project.configurators.DataSourcesConfigurator;
+import com.intellij.idea.plugin.hybris.project.configurators.EclipseConfigurator;
 import com.intellij.idea.plugin.hybris.project.configurators.FacetConfigurator;
+import com.intellij.idea.plugin.hybris.project.configurators.GradleConfigurator;
 import com.intellij.idea.plugin.hybris.project.configurators.GroupModuleConfigurator;
 import com.intellij.idea.plugin.hybris.project.configurators.JavadocModuleConfigurator;
 import com.intellij.idea.plugin.hybris.project.configurators.LibRootsConfigurator;
+import com.intellij.idea.plugin.hybris.project.configurators.LoadedConfigurator;
+import com.intellij.idea.plugin.hybris.project.configurators.MavenConfigurator;
 import com.intellij.idea.plugin.hybris.project.configurators.ModuleSettingsConfigurator;
 import com.intellij.idea.plugin.hybris.project.configurators.ModulesDependenciesConfigurator;
+import com.intellij.idea.plugin.hybris.project.configurators.RunConfigurationConfigurator;
+import com.intellij.idea.plugin.hybris.project.configurators.SearchScopeConfigurator;
 import com.intellij.idea.plugin.hybris.project.configurators.SpringConfigurator;
+import com.intellij.idea.plugin.hybris.project.configurators.TestRunConfigurationConfigurator;
+import com.intellij.idea.plugin.hybris.project.configurators.VersionControlSystemConfigurator;
 import com.intellij.idea.plugin.hybris.project.descriptors.HybrisModuleDescriptor;
 import com.intellij.idea.plugin.hybris.project.descriptors.HybrisProjectDescriptor;
-import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.module.ModifiableModuleModel;
-import com.intellij.openapi.roots.IdeaModifiableModelsProvider;
-import com.intellij.openapi.roots.ModifiableModelsProvider;
-import com.intellij.openapi.util.BuildNumber;
+import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,8 +52,6 @@ import java.util.List;
  * Created by Martin Zdarsky (martin.zdarsky@hybris.com) on 18/08/15.
  */
 public class DefaultConfiguratorFactory implements ConfiguratorFactory {
-
-    public static final int IDEA_2016_2_BASELINE_VERSION = 162;
 
     @NotNull
     @Override
@@ -70,16 +75,6 @@ public class DefaultConfiguratorFactory implements ConfiguratorFactory {
     @NotNull
     @Override
     public SpringConfigurator getSpringConfigurator() {
-        final BuildNumber buildNumber = ApplicationInfo.getInstance().getBuild();
-
-        if (buildNumber.getBaselineVersion() < IDEA_2016_2_BASELINE_VERSION) {
-            final SpringConfigurator springConfigurator = ServiceManager.getService(
-                NoInheritanceSpringConfigurator.class
-            );
-
-            return (null == springConfigurator) ? new DummySpringConfigurator() : springConfigurator;
-        }
-
         final SpringConfigurator springConfigurator = ServiceManager.getService(
             DefaultSpringConfigurator.class
         );
@@ -101,20 +96,20 @@ public class DefaultConfiguratorFactory implements ConfiguratorFactory {
 
     @NotNull
     @Override
-    public ContentRootConfigurator getContentRootConfigurator() {
-        return ServiceManager.getService(ContentRootConfigurator.class);
+    public ContentRootConfigurator getRegularContentRootConfigurator() {
+        return ServiceManager.getService(RegularContentRootConfigurator.class);
+    }
+
+    @NotNull
+    @Override
+    public ContentRootConfigurator getReadOnlyContentRootConfigurator() {
+        return ServiceManager.getService(ReadOnlyContentRootConfigurator.class);
     }
 
     @NotNull
     @Override
     public LibRootsConfigurator getLibRootsConfigurator() {
         return ServiceManager.getService(LibRootsConfigurator.class);
-    }
-
-    @NotNull
-    @Override
-    public ModifiableModelsProvider getModifiableModelsProvider() {
-        return new IdeaModifiableModelsProvider();
     }
 
     @NotNull
@@ -135,6 +130,66 @@ public class DefaultConfiguratorFactory implements ConfiguratorFactory {
         return ServiceManager.getService(ModuleSettingsConfigurator.class);
     }
 
+    @NotNull
+    @Override
+    public VersionControlSystemConfigurator getVersionControlSystemConfigurator() {
+        return ServiceManager.getService(VersionControlSystemConfigurator.class);
+    }
+
+    @NotNull
+    @Override
+    public RunConfigurationConfigurator getDebugRunConfigurationConfigurator() {
+        return ServiceManager.getService(DebugRunConfigurationConfigurator.class);
+    }
+
+    @Nullable
+    @Override
+    public RunConfigurationConfigurator getTestRunConfigurationConfigurator() {
+        return ServiceManager.getService(TestRunConfigurationConfigurator.class);
+    }
+
+    @Nullable
+    @Override
+    public AntConfigurator getAntConfigurator() {
+        return ServiceManager.getService(AntConfigurator.class);
+    }
+
+    @Nullable
+    @Override
+    public MavenConfigurator getMavenConfigurator() {
+        return ServiceManager.getService(MavenConfigurator.class);
+    }
+
+    @Nullable
+    @Override
+    public EclipseConfigurator getEclipseConfigurator() {
+        return ServiceManager.getService(EclipseConfigurator.class);
+    }
+
+    @Nullable
+    @Override
+    public GradleConfigurator getGradleConfigurator() {
+        return ServiceManager.getService(GradleConfigurator.class);
+    }
+
+    @NotNull
+    @Override
+    public SearchScopeConfigurator getSearchScopeConfigurator() {
+        return ServiceManager.getService(SearchScopeConfigurator.class);
+    }
+
+    @Nullable
+    @Override
+    public DataSourcesConfigurator getDataSourcesConfigurator() {
+        return ServiceManager.getService(DataSourcesConfigurator.class);
+    }
+
+    @NotNull
+    @Override
+    public LoadedConfigurator getLoadedConfigurator() {
+        return ServiceManager.getService(LoadedConfigurator.class);
+    }
+
     protected static class DummySpringConfigurator implements SpringConfigurator {
 
         @Override
@@ -143,8 +198,10 @@ public class DefaultConfiguratorFactory implements ConfiguratorFactory {
         }
 
         @Override
-        public void configureDependencies(@NotNull final HybrisProjectDescriptor hybrisProjectDescriptor,
-                                          @NotNull final ModifiableModuleModel rootProjectModifiableModuleModel) {
+        public void configureDependencies(
+            @NotNull final HybrisProjectDescriptor hybrisProjectDescriptor,
+            @NotNull final IdeModifiableModelsProvider modifiableModelsProvider
+        ) {
 
         }
     }

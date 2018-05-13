@@ -27,6 +27,7 @@ import com.intellij.psi.codeStyle.CustomCodeStyleSettings;
  * @author Alexander Bartash <AlexanderBartash@gmail.com>
  */
 public class ImpexCodeStyleSettings extends CustomCodeStyleSettings {
+
     public boolean SPACE_AFTER_FIELD_VALUE_SEPARATOR = true;
     public boolean SPACE_BEFORE_FIELD_VALUE_SEPARATOR = true;
 
@@ -48,17 +49,19 @@ public class ImpexCodeStyleSettings extends CustomCodeStyleSettings {
     public boolean SPACE_AFTER_LEFT_ROUND_BRACKET = false;
 //    public boolean SPACE_BEFORE_LEFT_ROUND_BRACKET = false;
 
-//    public boolean SPACE_AFTER_RIGHT_ROUND_BRACKET = false;
+    //    public boolean SPACE_AFTER_RIGHT_ROUND_BRACKET = false;
     public boolean SPACE_BEFORE_RIGHT_ROUND_BRACKET = false;
 
     public boolean SPACE_AFTER_LEFT_SQUARE_BRACKET = false;
 //    public boolean SPACE_BEFORE_LEFT_SQUARE_BRACKET = false;
 
-//    public boolean SPACE_AFTER_RIGHT_SQUARE_BRACKET = false;
+    //    public boolean SPACE_AFTER_RIGHT_SQUARE_BRACKET = false;
     public boolean SPACE_BEFORE_RIGHT_SQUARE_BRACKET = false;
 
     public boolean SPACE_AFTER_ALTERNATIVE_PATTERN = true;
     public boolean SPACE_BEFORE_ALTERNATIVE_PATTERN = true;
+    
+    public boolean TABLIFY = true;
 
     public ImpexCodeStyleSettings(final CodeStyleSettings settings) {
         super("ImpexCodeStyleSettings", settings);

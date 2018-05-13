@@ -26,7 +26,7 @@ public class ImpexFileTypeFactory extends FileTypeFactory {
 
     @Override
     public void createFileTypes(@NotNull final FileTypeConsumer consumer) {
-        consumer.consume(ImpexFileType.getInstance(), "impex");
+        consumer.consume(ImpexFileType.getInstance(), ImpexFileType.getInstance().getDefaultExtension());
     }
 
 }

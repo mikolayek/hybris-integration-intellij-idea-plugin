@@ -18,8 +18,8 @@
 
 package com.intellij.idea.plugin.hybris.project.configurators;
 
-import com.intellij.openapi.roots.ModifiableModelsProvider;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -41,13 +41,13 @@ public interface ConfiguratorFactory {
     CompilerOutputPathsConfigurator getCompilerOutputPathsConfigurator();
 
     @NotNull
-    ContentRootConfigurator getContentRootConfigurator();
+    ContentRootConfigurator getRegularContentRootConfigurator();
+
+    @NotNull
+    ContentRootConfigurator getReadOnlyContentRootConfigurator();
 
     @NotNull
     LibRootsConfigurator getLibRootsConfigurator();
-
-    @NotNull
-    ModifiableModelsProvider getModifiableModelsProvider();
 
     @NotNull
     GroupModuleConfigurator getGroupModuleConfigurator();
@@ -57,4 +57,34 @@ public interface ConfiguratorFactory {
 
     @NotNull
     ModuleSettingsConfigurator getModuleSettingsConfigurator();
+
+    @NotNull
+    VersionControlSystemConfigurator getVersionControlSystemConfigurator();
+
+    @NotNull
+    RunConfigurationConfigurator getDebugRunConfigurationConfigurator();
+
+    @Nullable
+    RunConfigurationConfigurator getTestRunConfigurationConfigurator();
+
+    @Nullable
+    AntConfigurator getAntConfigurator();
+
+    @Nullable
+    MavenConfigurator getMavenConfigurator();
+
+    @Nullable
+    EclipseConfigurator getEclipseConfigurator();
+
+    @NotNull
+    SearchScopeConfigurator getSearchScopeConfigurator();
+
+    @NotNull
+    LoadedConfigurator getLoadedConfigurator();
+
+    @Nullable
+    GradleConfigurator getGradleConfigurator();
+
+    @Nullable
+    DataSourcesConfigurator getDataSourcesConfigurator();
 }

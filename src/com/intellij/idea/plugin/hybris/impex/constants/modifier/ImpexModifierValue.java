@@ -20,8 +20,6 @@ package com.intellij.idea.plugin.hybris.impex.constants.modifier;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
 /**
  * Created 18:53 14 May 2016
  *
