@@ -187,6 +187,10 @@
                          groupName="Impex Performance" level="ERROR" language="Impex" enabledByDefault="false"
                          implementationClass="com.intellij.idea.plugin.hybris.impex.inspection.UnknownMacrosInspection"/>
 
+        <localInspection groupPath="Impex" shortName="UnknownTypeAttributeInspection" displayName="Unknown attribute"
+                         groupName="Impex Performance" level="ERROR" language="Impex" enabledByDefault="true"
+                         implementationClass="com.intellij.idea.plugin.hybris.impex.inspection.UnknownTypeAttribute"/>
+
         <localInspection groupPath="Impex" shortName="ConfigProcessorInspection" displayName="Incorrect use of $config macros"
                          groupName="Impex Performance" level="WARNING" language="Impex" enabledByDefault="true"
                          implementationClass="com.intellij.idea.plugin.hybris.impex.inspection.ConfigProcessorInspection"/>
