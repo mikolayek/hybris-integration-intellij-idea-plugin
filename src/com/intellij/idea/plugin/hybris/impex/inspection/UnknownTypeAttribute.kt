@@ -23,8 +23,11 @@ import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.idea.plugin.hybris.impex.psi.ImpexAnyHeaderParameterName
 import com.intellij.idea.plugin.hybris.impex.psi.ImpexMacroUsageDec
+import com.intellij.idea.plugin.hybris.impex.psi.ImpexTypes.DOCUMENT_ID
 import com.intellij.idea.plugin.hybris.impex.psi.ImpexVisitor
+import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiElementVisitor
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 
 /**
  * @author Nosov Aleksandr <nosovae.dev@gmail.com>
@@ -35,7 +38,7 @@ class UnknownTypeAttribute : LocalInspectionTool() {
 
 class ImpexHeaderLineVisitor(private val problemsHolder: ProblemsHolder) : ImpexVisitor() {
     override fun visitAnyHeaderParameterName(parameter: ImpexAnyHeaderParameterName) {
-        if (parameter.firstChild !is ImpexMacroUsageDec) {
+        if (parameter.firstChild !is ImpexMacroUsageDec && isNotDocumentId(parameter.firstChild)) {
             val references = parameter.references
             if (references.isNotEmpty()) {
                 val resolve = references.first().resolve()
@@ -45,4 +48,6 @@ class ImpexHeaderLineVisitor(private val problemsHolder: ProblemsHolder) : Impex
             }
         }
     }
+
+    private fun isNotDocumentId(element: PsiElement) = (element as LeafPsiElement).elementType != DOCUMENT_ID
 }
