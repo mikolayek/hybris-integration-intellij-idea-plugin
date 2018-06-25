@@ -38,7 +38,7 @@ class UnknownTypeAttribute : LocalInspectionTool() {
 
 class ImpexHeaderLineVisitor(private val problemsHolder: ProblemsHolder) : ImpexVisitor() {
     override fun visitAnyHeaderParameterName(parameter: ImpexAnyHeaderParameterName) {
-        if (parameter.firstChild !is ImpexMacroUsageDec && isNotDocumentId(parameter.firstChild)) {
+        if (isNotMacros(parameter) && isNotDocumentId(parameter.firstChild)) {
             val references = parameter.references
             if (references.isNotEmpty()) {
                 val resolve = references.first().resolve()
@@ -48,6 +48,8 @@ class ImpexHeaderLineVisitor(private val problemsHolder: ProblemsHolder) : Impex
             }
         }
     }
+
+    private fun isNotMacros(parameter: ImpexAnyHeaderParameterName) = parameter.firstChild !is ImpexMacroUsageDec
 
     private fun isNotDocumentId(element: PsiElement) = (element as LeafPsiElement).elementType != DOCUMENT_ID
 }
